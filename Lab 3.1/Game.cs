@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab_3._1
 {
-    class Game
+    public class Game
     {
         public int ID { get; set; }
         public string Name { get; set; } = "Unknown";

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab_3._1
 {
-    class Review
+    public class Review
     {
         public string Username { get; set; } = "Unknown";
         public float Rating { get; set; }

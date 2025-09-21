@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab_3._1
 {
-    enum EnumPlatforms
+    public enum EnumPlatforms
     {
         PC,
         PlayStation,
@@ -17,6 +17,8 @@ namespace Lab_3._1
         Xbox,
         Xbox360,
         XboxOne,
-        XboxSeries
+        XboxSeries,
+        NintendoSwitch,
+        NintendoSwitch2
     }
 }
