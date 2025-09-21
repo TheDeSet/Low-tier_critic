@@ -1,4 +1,4 @@
-﻿namespace Lab_3._1
+﻿namespace View
 {
     partial class Form1
     {
