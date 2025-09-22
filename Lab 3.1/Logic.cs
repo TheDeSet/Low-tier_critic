@@ -30,11 +30,7 @@ namespace Lab_3._1
             return _games;
         }
 
-        public static List<Game> GetFilteredGames(
-                                                    string searchField,
-                                                    string searchText,
-                                                    string sortOption,
-                                                    string seriesFilter)
+        public static List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
             var result = _games.AsEnumerable();
 
@@ -58,7 +54,6 @@ namespace Lab_3._1
                         break;
                 }
             }
-
             // Сортировка
             switch (sortOption)
             {
@@ -73,10 +68,34 @@ namespace Lab_3._1
             return result.ToList();
         }
 
-        // Метод для добавления игры (для тестовых данных)
         public static void AddGame(Game game)
         {
+            // Автоматически назначаем ID
+            game.ID = _games.Count > 0 ? _games.Max(g => g.ID) + 1 : 1;
+
+            // Инициализируем списки, если null
+            game.Platforms ??= new List<EnumPlatforms>();
+            game.Screenshots ??= new List<Image>();
+            game.Reviews ??= new List<Review>();
+
+            
             _games.Add(game);
+        }
+        public static bool UpdateGame(Game updatedGame)
+        {
+            var existingGame = _games.FirstOrDefault(g => g.ID == updatedGame.ID);
+            if (existingGame == null) return false;
+
+            
+            existingGame.Name = updatedGame.Name;
+            existingGame.Developer = updatedGame.Developer;
+            existingGame.YearOfRelease = updatedGame.YearOfRelease;
+            existingGame.Platforms = updatedGame.Platforms;
+            existingGame.Description = updatedGame.Description;
+            existingGame.Icon = updatedGame.Icon;
+            existingGame.Screenshots = updatedGame.Screenshots;
+
+            return true;
         }
 
         public static bool DeleteGame(int gameId)
@@ -86,6 +105,32 @@ namespace Lab_3._1
 
             return _games.Remove(game);
         }
-        // ... другие методы: обновление и т.д.
+
+        public static bool AddReviewToGame(int gameId, Review review)
+        {
+            var game = _games.FirstOrDefault(g => g.ID == gameId);
+            if (game == null) return false;
+
+            // Инициализируем список, если null
+            game.Reviews ??= new List<Review>();
+
+            // Автоимя "Аноним", если не указано
+            review.Username = string.IsNullOrWhiteSpace(review.Username) ? "Аноним" : review.Username.Trim();
+
+            // Ограничиваем рейтинг 1.0–5.0
+            review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
+
+            // Добавляем отзыв
+            game.Reviews.Add(review);
+
+            // ➤➤➤ Опционально: пересчитываем рейтинг игры (среднее по отзывам)
+            if (game.Reviews.Count > 0)
+            {
+                game.Rating = game.Reviews.Average(r => r.Rating);
+            }
+
+            return true;
+        }
+
     }
 }

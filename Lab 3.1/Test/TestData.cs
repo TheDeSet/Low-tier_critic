@@ -20,7 +20,7 @@ namespace Lab_3._1.Test
                 Developer = "CD Projekt Red",
                 YearOfRelease = 2015,
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
-                Rating = 9.8f,
+                Rating = 4.8f,
                 Description = "Эпическая RPG по мотивам книг Анджея Сапковского. Игра года 2015.",
                 Icon = LoadImage("the-witcher-3-wild-1.jpg"),
                 Screenshots = new List<Image>
@@ -30,7 +30,6 @@ namespace Lab_3._1.Test
                     LoadImage("the-witcher-3-wild-4.jpg"),
                     LoadImage("the-witcher-3-wild-5.jpg")
                 },
-                GamesFromSeries = new List<Game>(),
                 Reviews = new List<Review>
                 {
                     new Review { Username = "GamerAlex", Rating = 5.0f, ReviewText = "Шедевр всех времён и народов!" },
@@ -47,7 +46,7 @@ namespace Lab_3._1.Test
                 Developer = "CD Projekt Red",
                 YearOfRelease = 2020,
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation5, EnumPlatforms.XboxSeries },
-                Rating = 7.5f,
+                Rating = 4.5f,
                 Description = "Футуристический экшен в мире Night City. После патчей игра стала значительно лучше.",
                 Icon = LoadImage("Cyberpunk-2077-1.jpg"),
                 Screenshots = new List<Image>
@@ -56,7 +55,6 @@ namespace Lab_3._1.Test
                     LoadImage("Cyberpunk-2077-3.png"),
                     LoadImage("Cyberpunk-2077-4.png")
                 },
-                GamesFromSeries = new List<Game>(),
                 Reviews = new List<Review>
                 {
                     new Review { Username = "TechGuru", Rating = 4.0f, ReviewText = "Графика на максимуме — вау!" },
@@ -73,7 +71,7 @@ namespace Lab_3._1.Test
                 Developer = "Team Cherry",
                 YearOfRelease = 2017,
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
-                Rating = 9.5f,
+                Rating = 4.5f,
                 Description = "Метроидвания с потрясающей атмосферой, музыкой и боевой системой.",
                 Icon = LoadImage("Hollow-knight-1.jpeg"),
                 Screenshots = new List<Image>
@@ -81,7 +79,6 @@ namespace Lab_3._1.Test
                     LoadImage("Hollow-knight-2.jpg"),
                     LoadImage("Hollow-knight-3.png")
                 },
-                GamesFromSeries = new List<Game>(),
                 Reviews = new List<Review>
                 {
                     new Review { Username = "IndieLover", Rating = 5.0f, ReviewText = "Лучшая инди-игра десятилетия!" },
@@ -96,25 +93,39 @@ namespace Lab_3._1.Test
                 Developer = "Team Cherry",
                 YearOfRelease = 2025,
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation5, EnumPlatforms.XboxOne, EnumPlatforms.NintendoSwitch },
-                Rating = 9.5f,
+                Rating = 4.5f,
                 Description = "Метроидвания с потрясающей атмосферой, музыкой и боевой системой.",
                 Icon = LoadImage("Hollow-knight-silksong-1.png"),
                 Screenshots = new List<Image>
                 {
                     LoadImage("Hollow-knight-silksong-2.jpeg")
                 },
-                GamesFromSeries = new List<Game>(),
                 Reviews = new List<Review>
                 {
                     new Review { Username = "IndieLover", Rating = 5.0f, ReviewText = "Лучшая инди-игра десятилетия!" },
                     new Review { Username = "HardcoreGamer", Rating = 4.5f, ReviewText = "Сложно, но справедливо. Гениальный дизайн." }
                 }
             };
-            List<Game> games1 = [hollowKnight, hollowKnight_silksong];
+
+            var test = new Game
+            {
+                ID = 5,
+                Name = "test",
+                Developer = "test",
+                YearOfRelease = 2000,
+                Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
+                Rating = null,
+                Description = "test",
+                Icon = null,
+                Screenshots = new List<Image>(),
+                Reviews = new List<Review>()
+            };
+            
             games.Add(witcher3);
             games.Add(cyberpunk);
             games.Add(hollowKnight);
             games.Add(hollowKnight_silksong);
+            games.Add(test);
 
             return games;
         }

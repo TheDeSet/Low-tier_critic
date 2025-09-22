@@ -50,7 +50,7 @@
             // 
             LB_Rating_Game.AutoSize = true;
             LB_Rating_Game.Font = new Font("Segoe UI", 12F);
-            LB_Rating_Game.Location = new Point(62, 320);
+            LB_Rating_Game.Location = new Point(75, 320);
             LB_Rating_Game.Name = "LB_Rating_Game";
             LB_Rating_Game.Size = new Size(52, 21);
             LB_Rating_Game.TabIndex = 2;
@@ -59,7 +59,7 @@
             // pictureBox2
             // 
             pictureBox2.Image = View.Properties.Resources.Rating;
-            pictureBox2.Location = new Point(41, 320);
+            pictureBox2.Location = new Point(54, 320);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(22, 20);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -80,7 +80,7 @@
             // 
             LB_Developer.AutoSize = true;
             LB_Developer.Font = new Font("Segoe UI", 12F);
-            LB_Developer.Location = new Point(63, 290);
+            LB_Developer.Location = new Point(5, 290);
             LB_Developer.Name = "LB_Developer";
             LB_Developer.Size = new Size(52, 21);
             LB_Developer.TabIndex = 5;

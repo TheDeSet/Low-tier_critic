@@ -34,6 +34,8 @@
             RTB_ReviewText = new RichTextBox();
             TB_Rating = new MaskedTextBox();
             TB_Username = new TextBox();
+            BTN_Add = new Button();
+            BTN_Cancel = new Button();
             SuspendLayout();
             // 
             // label1
@@ -94,11 +96,31 @@
             TB_Username.Size = new Size(417, 27);
             TB_Username.TabIndex = 5;
             // 
+            // BTN_Add
+            // 
+            BTN_Add.Location = new Point(407, 233);
+            BTN_Add.Name = "BTN_Add";
+            BTN_Add.Size = new Size(75, 23);
+            BTN_Add.TabIndex = 6;
+            BTN_Add.Text = "Добавить";
+            BTN_Add.UseVisualStyleBackColor = true;
+            // 
+            // BTN_Cancel
+            // 
+            BTN_Cancel.Location = new Point(488, 233);
+            BTN_Cancel.Name = "BTN_Cancel";
+            BTN_Cancel.Size = new Size(75, 23);
+            BTN_Cancel.TabIndex = 7;
+            BTN_Cancel.Text = "Отменить";
+            BTN_Cancel.UseVisualStyleBackColor = true;
+            // 
             // AddReview
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(575, 238);
+            ClientSize = new Size(575, 262);
+            Controls.Add(BTN_Cancel);
+            Controls.Add(BTN_Add);
             Controls.Add(TB_Username);
             Controls.Add(TB_Rating);
             Controls.Add(RTB_ReviewText);
@@ -121,5 +143,7 @@
         private RichTextBox RTB_ReviewText;
         private MaskedTextBox TB_Rating;
         private TextBox TB_Username;
+        private Button BTN_Add;
+        private Button BTN_Cancel;
     }
 }

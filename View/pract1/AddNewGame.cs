@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lab_3._1;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,143 @@ namespace View
         public AddNewGame()
         {
             InitializeComponent();
+            // Заполнение CHKLTB_Platform
+            foreach (EnumPlatforms platform in Enum.GetValues(typeof(EnumPlatforms)))
+            {
+                CHKLTB_Platform.Items.Add(platform);
+            }
+            BTN_AddIconImage.Click += BTN_AddIconImage_Click;
+            BTN_AddScreenshotImage.Click += BTN_AddScreenshotImage_Click;
+            BTN_Reset.Click += BTN_Reset_Click;
+            BTN_Add.Click += BTN_Add_Click;
+            PIC_Game.Image = View.Properties.Resources.No_image; // заглушка
+            _currentIcon = View.Properties.Resources.No_image;
+        }
+
+        private Image _currentIcon;
+        private List<Image> _screenshots = new List<Image>();
+        private void BTN_AddIconImage_Click(object sender, EventArgs e)
+        {
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Выберите иконку игры",
+                Filter = "Изображения|*.png;*.jpg;*.jpeg;*.bmp|Все файлы|*.*",
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    _currentIcon = Image.FromFile(dialog.FileName);
+                    PIC_Game.Image = _currentIcon;
+                    TB_IconPath.Text = dialog.FileName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void BTN_AddScreenshotImage_Click(object sender, EventArgs e)
+        {
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Выберите скриншоты",
+                Filter = "Изображения|*.png;*.jpg;*.jpeg;*.bmp|Все файлы|*.*",
+                Multiselect = true // можно выбрать несколько!
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                _screenshots.Clear();
+                foreach (string file in dialog.FileNames)
+                {
+                    try
+                    {
+                        _screenshots.Add(Image.FromFile(file));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Не удалось загрузить: {file}\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                TB_ScreenshotsPath.Text = $"{_screenshots.Count} файлов выбрано";
+            }
+        }
+
+        private void BTN_Reset_Click(object sender, EventArgs e)
+        {
+            _currentIcon = View.Properties.Resources.No_image;
+            PIC_Game.Image = _currentIcon;
+            TB_IconPath.Text = "";
+        }
+
+        private void BTN_Add_Click(object sender, EventArgs e)
+        {
+            // Валидация обязательных полей
+            if (string.IsNullOrWhiteSpace(TB_GameName.Text))
+            {
+                MessageBox.Show("Введите название игры.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(TB_Developer.Text))
+            {
+                MessageBox.Show("Введите разработчика.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            // Создаём новую игру
+            var newGame = new Game
+            {
+                Name = TB_GameName.Text.Trim(),
+                Developer = TB_Developer.Text.Trim(),
+                Description = RTB_Description.Text.Trim(),
+                Icon = _currentIcon,
+                Screenshots = new List<Image>(_screenshots), // копируем
+                Platforms = new List<EnumPlatforms>()
+            };
+            // Год выпуска
+            if (int.TryParse(TB_YearOfRelease.Text, out int year) && year >= 1925)
+            {
+                newGame.YearOfRelease = year;
+            }
+            else
+            {
+                MessageBox.Show("Дата релиза не может быть меньше чем 1925.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Платформы
+            foreach (int index in CHKLTB_Platform.CheckedIndices)
+            {
+                if (Enum.IsDefined(typeof(EnumPlatforms), index))
+                {
+                    newGame.Platforms.Add((EnumPlatforms)index);
+                }
+            }
+
+            
+            Logic.AddGame(newGame);
+
+            MessageBox.Show($"Игра \"{newGame.Name}\" успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);         
+            ResetForm();
+            this.Close();
+        }
+
+        private void ResetForm()
+        {
+            TB_GameName.Text = "";
+            TB_Developer.Text = "";
+            TB_YearOfRelease.Text = "";
+            RTB_Description.Text = "";
+            TB_IconPath.Text = "";
+            TB_ScreenshotsPath.Text = "";
+            CHKLTB_Platform.ClearSelected();
+
+            _currentIcon = View.Properties.Resources.No_image;
+            PIC_Game.Image = _currentIcon;
+            _screenshots.Clear();
         }
     }
 }

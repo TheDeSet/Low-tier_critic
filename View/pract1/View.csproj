@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\GitProject\Lab 3.1\Model.csproj" />
+    <ProjectReference Include="..\..\Lab 3.1\Model.csproj" />
   </ItemGroup>
 
   <ItemGroup>

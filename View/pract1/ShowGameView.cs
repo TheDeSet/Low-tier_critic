@@ -78,12 +78,17 @@ namespace pract1
             // Выделяем эту плитку
             SetSelected(true);
         }
+        public event EventHandler GameUpdated; //например, добавлен отзыв
         //открывает окно с полной информацией
         private void ShowGameView_DoubleClick(object sender, EventArgs e)
         {
             if (GameData?.ID > 0)
             {
                 var detailsForm = new FullGameInformation(GameData.ID);
+                detailsForm.FormClosed += (s, args) =>
+                {
+                    GameUpdated?.Invoke(this, EventArgs.Empty);
+                };
                 detailsForm.ShowDialog(); // Модальное окно
             }
         }

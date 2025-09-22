@@ -17,7 +17,6 @@ namespace Lab_3._1
         public string Description { get; set; } = "Empty";
         public Image Icon { get; set; }
         public List<Image> Screenshots { get; set; }
-        public List<Game> GamesFromSeries { get; set; }
         public List<Review> Reviews { get; set; }
     }
 }

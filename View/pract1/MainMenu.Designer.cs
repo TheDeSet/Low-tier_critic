@@ -31,8 +31,6 @@
             FLP_GamesView = new FlowLayoutPanel();
             panel1 = new Panel();
             BTN_Reset = new Button();
-            CMB_GamesFromSeries = new ComboBox();
-            label3 = new Label();
             CMB_Filter = new ComboBox();
             label2 = new Label();
             CMB_Sort = new ComboBox();
@@ -61,8 +59,6 @@
             // 
             panel1.BackColor = Color.DimGray;
             panel1.Controls.Add(BTN_Reset);
-            panel1.Controls.Add(CMB_GamesFromSeries);
-            panel1.Controls.Add(label3);
             panel1.Controls.Add(CMB_Filter);
             panel1.Controls.Add(label2);
             panel1.Controls.Add(CMB_Sort);
@@ -77,34 +73,12 @@
             // BTN_Reset
             // 
             BTN_Reset.Font = new Font("Segoe UI", 11F);
-            BTN_Reset.Location = new Point(567, 7);
+            BTN_Reset.Location = new Point(567, 24);
             BTN_Reset.Name = "BTN_Reset";
             BTN_Reset.Size = new Size(94, 28);
             BTN_Reset.TabIndex = 8;
             BTN_Reset.Text = "Сбросить";
             BTN_Reset.UseVisualStyleBackColor = true;
-            // 
-            // CMB_GamesFromSeries
-            // 
-            CMB_GamesFromSeries.DropDownStyle = ComboBoxStyle.DropDownList;
-            CMB_GamesFromSeries.Font = new Font("Segoe UI", 11F);
-            CMB_GamesFromSeries.FormattingEnabled = true;
-            CMB_GamesFromSeries.Items.AddRange(new object[] { "все серии" });
-            CMB_GamesFromSeries.Location = new Point(805, 38);
-            CMB_GamesFromSeries.Name = "CMB_GamesFromSeries";
-            CMB_GamesFromSeries.Size = new Size(207, 28);
-            CMB_GamesFromSeries.TabIndex = 7;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 13F);
-            label3.ForeColor = SystemColors.ButtonFace;
-            label3.Location = new Point(566, 38);
-            label3.Name = "label3";
-            label3.Size = new Size(236, 25);
-            label3.TabIndex = 6;
-            label3.Text = "Сгруппировать игры серии";
             // 
             // CMB_Filter
             // 
@@ -122,7 +96,7 @@
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 13F);
             label2.ForeColor = SystemColors.ButtonFace;
-            label2.Location = new Point(661, 7);
+            label2.Location = new Point(661, 23);
             label2.Name = "label2";
             label2.Size = new Size(138, 25);
             label2.TabIndex = 4;
@@ -134,7 +108,7 @@
             CMB_Sort.Font = new Font("Segoe UI", 11F);
             CMB_Sort.FormattingEnabled = true;
             CMB_Sort.Items.AddRange(new object[] { "без сортировки", "возрастанию (рейтинг)", "убыванию (рейтинг)" });
-            CMB_Sort.Location = new Point(805, 7);
+            CMB_Sort.Location = new Point(805, 24);
             CMB_Sort.Name = "CMB_Sort";
             CMB_Sort.Size = new Size(207, 28);
             CMB_Sort.TabIndex = 3;
@@ -198,6 +172,7 @@
             BTN_Update.TabIndex = 1;
             BTN_Update.Text = "Изменить";
             BTN_Update.UseVisualStyleBackColor = true;
+            BTN_Update.Click += BTN_Update_Click;
             // 
             // BTN_Add
             // 
@@ -238,8 +213,6 @@
         private Label label1;
         private TextBox TB_Search;
         private ComboBox CMB_Filter;
-        private ComboBox CMB_GamesFromSeries;
-        private Label label3;
         private Button BTN_Reset;
         private Panel PNL_Menu;
         private Button BTN_Delete;

@@ -18,6 +18,7 @@ namespace View
         {
             InitializeComponent();
             HSCB_Thumbnails.Scroll += (s, e) => UpdateThumbnailsPosition();
+            BTN_MakeReview.Click += (s, e) => BTN_MakeReview_Click(gameId);
             LoadGameData(gameId);
         }
 
@@ -50,7 +51,7 @@ namespace View
         private void LoadGameData(int gameId)
         {
             // Обращаемся к Logic для получения игры по ID
-            var game = Logic.GetGameById(gameId); // ← Этот метод нужно реализовать в классе Logic!
+            var game = Logic.GetGameById(gameId);
 
             if (game == null)
             {
@@ -62,8 +63,8 @@ namespace View
             // Заполняем данные
             LB_GameName.Text = game.Name;
             LB_Developer.Text = $"{game.Developer}";
-            LB_YearOfRelease.Text = game.YearOfRelease.HasValue ? $"{game.YearOfRelease}" : "Год выпуска: не указан";
-            LB_Rating.Text = game.Rating.HasValue ? $"{game.Rating:F1}" : "Рейтинг: не указан";
+            LB_YearOfRelease.Text = game.YearOfRelease.HasValue ? $"{game.YearOfRelease}" : "не указан";
+            LB_Rating.Text = game.Rating.HasValue ? $"{game.Rating:F1}" : "не указан";
             RTB_Description.Text = game.Description ?? "Описание отсутствует.";
 
             PIC_GameImage.Image = game.Icon ?? View.Properties.Resources.No_image;
@@ -114,20 +115,16 @@ namespace View
             thumbnailBoxes.Clear();
             allScreenshots.Clear();
 
-            // 1. Добавляем главную иконку
-            if (game.Icon != null)
-                allScreenshots.Add(game.Icon);
-
-            // 2. Добавляем скриншоты
+            // Добавляем скриншоты
             if (game.Screenshots != null)
                 allScreenshots.AddRange(game.Screenshots);
 
-            // 3. Если есть хотя бы одно изображение — показываем первое как главное
+            // Если есть хотя бы одно изображение — показываем первое как главное
             if (allScreenshots.Count > 0)
             {
                 PIC_GameImage.Image = allScreenshots[0];
 
-                // Создаём миниатюры
+                // создание миниатюры
                 int totalWidth = 0;
                 for (int i = 0; i < allScreenshots.Count; i++)
                 {
@@ -138,14 +135,14 @@ namespace View
                         SizeMode = PictureBoxSizeMode.Zoom,
                         BorderStyle = BorderStyle.FixedSingle,
                         Image = allScreenshots[i],
-                        Tag = i // запоминаем индекс!
+                        Tag = i 
                     };
 
                     thumb.Click += (s, e) =>
                     {
                         var index = (int)((PictureBox)s).Tag;
                         PIC_GameImage.Image = allScreenshots[index];
-                        // Можно добавить рамку для активного
+                        
                         HighlightSelectedThumbnail(index);
                     };
 
@@ -154,7 +151,6 @@ namespace View
                     totalWidth += thumbnailWidth + spacing;
                 }
 
-                // Настраиваем скроллбар
                 PNL_Thumbnails.Width = 420; // фиксированная ширина видимой области
                 PNL_Thumbnails.AutoScroll = false;
 
@@ -175,6 +171,17 @@ namespace View
             {
                 PIC_GameImage.Image = View.Properties.Resources.No_image;
                 HSCB_Thumbnails.Enabled = false;
+            }
+        }
+        private void BTN_MakeReview_Click(int gameId)
+        {
+            var game = Logic.GetGameById(gameId);
+
+            var addReviewForm = new AddReview(game.ID);
+
+            if (addReviewForm.ShowDialog() == DialogResult.OK)
+            {
+                LoadGameData(game.ID);
             }
         }
     }

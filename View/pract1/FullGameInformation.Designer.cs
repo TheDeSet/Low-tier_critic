@@ -44,7 +44,6 @@
             LTB_Platforms = new ListBox();
             PNL_Thumbnails = new Panel();
             HSCB_Thumbnails = new HScrollBar();
-            LLB_AllGamesFromSeries = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)PIC_GameImage).BeginInit();
             SuspendLayout();
             // 
@@ -93,9 +92,9 @@
             label3.Font = new Font("Segoe UI", 10F);
             label3.Location = new Point(12, 354);
             label3.Name = "label3";
-            label3.Size = new Size(92, 19);
+            label3.Size = new Size(91, 19);
             label3.TabIndex = 4;
-            label3.Text = "Дата выхода:";
+            label3.Text = "Год выпуска:";
             // 
             // LB_YearOfRelease
             // 
@@ -139,7 +138,7 @@
             // 
             LB_Rating.AutoSize = true;
             LB_Rating.Font = new Font("Segoe UI", 22F);
-            LB_Rating.Location = new Point(514, 64);
+            LB_Rating.Location = new Point(466, 64);
             LB_Rating.Name = "LB_Rating";
             LB_Rating.Size = new Size(97, 41);
             LB_Rating.TabIndex = 10;
@@ -204,24 +203,12 @@
             HSCB_Thumbnails.SmallChange = 10;
             HSCB_Thumbnails.TabIndex = 17;
             // 
-            // LLB_AllGamesFromSeries
-            // 
-            LLB_AllGamesFromSeries.AutoSize = true;
-            LLB_AllGamesFromSeries.Font = new Font("Segoe UI", 10F);
-            LLB_AllGamesFromSeries.Location = new Point(466, 267);
-            LLB_AllGamesFromSeries.Name = "LLB_AllGamesFromSeries";
-            LLB_AllGamesFromSeries.Size = new Size(185, 19);
-            LLB_AllGamesFromSeries.TabIndex = 18;
-            LLB_AllGamesFromSeries.TabStop = true;
-            LLB_AllGamesFromSeries.Text = "Посмотреть все игры серии";
-            // 
             // FullGameInformation
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(700, 743);
-            Controls.Add(LLB_AllGamesFromSeries);
             Controls.Add(HSCB_Thumbnails);
             Controls.Add(PNL_Thumbnails);
             Controls.Add(LTB_Platforms);
@@ -266,6 +253,5 @@
         private ListBox LTB_Platforms;
         private Panel PNL_Thumbnails;
         private HScrollBar HSCB_Thumbnails;
-        private LinkLabel LLB_AllGamesFromSeries;
     }
 }
