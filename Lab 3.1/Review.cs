@@ -8,7 +8,7 @@ namespace Lab_3._1
 {
     public class Review
     {
-        public string Username { get; set; } = "Unknown";
+        public string? Username { get; set; }
         public float Rating { get; set; }
         public string ReviewText { get; set; } = "Empty";
     }

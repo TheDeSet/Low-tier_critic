@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace Lab_3._1
 {
@@ -22,6 +24,42 @@ namespace Lab_3._1
         public static Game GetGameById(int id)
         {
             return _games.FirstOrDefault(g => g.ID == id);
+        }
+
+        public static List<string> GetPlatformsStringList()
+        {
+            List<string> listOfPlatforms = new List<string>();
+            foreach (Enum platform in Enum.GetValues<EnumPlatforms>())
+            {
+                FieldInfo field = platform.GetType().GetField(platform.ToString());
+                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+                listOfPlatforms.Add(attribute.Description);
+            }
+            return listOfPlatforms;
+        }
+
+        public static List<string> GetPlatformsStringList(Game game)
+        {
+            List<string> listOfPlatforms = new List<string>();
+            foreach (Enum platform in game.Platforms)
+            {
+                FieldInfo field = platform.GetType().GetField(platform.ToString());
+                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+                listOfPlatforms.Add(attribute.Description);
+            }
+            return listOfPlatforms;
+        }
+
+        public static List<T> FromDescriptionsToEnum<T>(IEnumerable<string> descriptions) where T : Enum
+        {
+            return descriptions.Select(d =>
+                Enum.GetValues(typeof(T))
+                    .Cast<T>()
+                    .First(c =>
+                        (typeof(T).GetField(c.ToString())?.GetCustomAttribute<DescriptionAttribute>()?.Description == d)
+                        || c.ToString() == d
+                    )
+            ).ToList();
         }
 
         // Метод для получения всех игр (для плиток)
