@@ -14,14 +14,21 @@ namespace pract1
 {
     public partial class ShowGameView : UserControl
     {
+
+        /// <summary>
+        /// Инициализирует новый экземпляр класса ShowGameView и настраивает обработчики событий для кликов и двойных кликов.
+        /// </summary>
         public ShowGameView()
         {
             InitializeComponent();
             LoadInformationOfGame();
         }
+
+        /// <summary>
+        /// Настраивает обработчики событий для элементов управления внутри плитки (клики и двойные клики).
+        /// </summary>
         private void LoadInformationOfGame()
         {
-            // Добавляем клик по всей плитке
             this.DoubleClick += ShowGameView_DoubleClick;
             PIC_Game.DoubleClick += ShowGameView_DoubleClick;
             LB_Game_Name.DoubleClick += ShowGameView_DoubleClick;
@@ -34,9 +41,13 @@ namespace pract1
             LB_Developer.Click += ShowGameView_Click;
         }
 
-        // Свойства для привязки данных
         public Game GameData { get; private set; }
         public bool IsSelected { get; private set; }
+
+        /// <summary>
+        /// Устанавливает данные игры в элементы управления плитки (название, разработчик, рейтинг, иконка).
+        /// </summary>
+        /// <param name="game">Объект игры для отображения.</param>
         public void SetGame(Game game) 
         {
             GameData = game; 
@@ -53,17 +64,24 @@ namespace pract1
             
 
         }
-        // Метод для выделения/снятия выделения
+        /// <summary>
+        /// Обновляет визуальное состояние плитки при выделении/снятии выделения (цвет фона и стиль рамки).
+        /// </summary>
+        /// <param name="selected">Флаг выделения (true - выделена, false - не выделена).</param>
         public void SetSelected(bool selected)
         {
             IsSelected = selected;
             this.BackColor = selected ? Color.LightBlue : Color.White; // визуальная подсветка
             this.BorderStyle = selected ? BorderStyle.FixedSingle : BorderStyle.None;
         }
-        // При клике на плитку — сообщаем родителю, что она выбрана
+        /// <summary>
+        /// Обрабатывает событие клика по плитке. Снимает выделение со всех других плиток в родительском контейнере 
+        /// и выделяет текущую плитку.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void ShowGameView_Click(object sender, EventArgs e)
         {
-            // Снимаем выделение со всех плиток в родительском контейнере
             if (this.Parent is FlowLayoutPanel panel)
             {
                 foreach (Control ctrl in panel.Controls)
@@ -74,12 +92,18 @@ namespace pract1
                     }
                 }
             }
-
-            // Выделяем эту плитку
             SetSelected(true);
         }
-        public event EventHandler GameUpdated; //например, добавлен отзыв
-        //открывает окно с полной информацией
+        /// <summary>
+        /// Событие, возникающее при обновлении данных игры (например, после добавления отзыва).
+        /// </summary>
+        public event EventHandler GameUpdated;
+        /// <summary>
+        /// Обрабатывает событие двойного клика по плитке. Открывает форму с детальной информацией об игре и 
+        /// подписывается на закрытие формы для обновления данных через событие GameUpdated.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void ShowGameView_DoubleClick(object sender, EventArgs e)
         {
             if (GameData?.ID > 0)
@@ -89,7 +113,7 @@ namespace pract1
                 {
                     GameUpdated?.Invoke(this, EventArgs.Empty);
                 };
-                detailsForm.ShowDialog(); // Модальное окно
+                detailsForm.ShowDialog();
             }
         }
     }

@@ -13,6 +13,10 @@ namespace View
 {
     public partial class AddReview : Form
     {
+        /// <summary>
+        /// Инициализирует форму добавления отзыва для конкретной игры.
+        /// </summary>
+        /// <param name="gameId">ID игры, к которой будет добавлен отзыв.</param>
         public AddReview(int gameId)
         {
             _gameId = gameId;
@@ -21,17 +25,26 @@ namespace View
             BTN_Cancel.Click += (s, e) => this.Close();
         }
         private int _gameId;
+
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки добавления отзыва. Проверяет валидность данных, создает объект отзыва и сохраняет его через логику.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BtnAdd_Click(object sender, EventArgs e)
         {
 
-            // Валидация рейтинга
             if (!float.TryParse(TB_Rating.Text, out float rating) || rating < 1.0f || rating > 5.0f)
             {
                 MessageBox.Show("Пожалуйста, введите рейтинг от 1.0 до 5.0 (например: 4.5)", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Создаём отзыв
+            if (string.IsNullOrWhiteSpace(RTB_ReviewText.Text))
+            {
+                MessageBox.Show("Введите ваши впечатления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             var review = new Review
             {
                 Username = TB_Username.Text,

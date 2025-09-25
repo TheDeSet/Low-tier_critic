@@ -13,10 +13,18 @@ namespace View
 {
     public partial class ShowReviewsView : UserControl
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр класса ShowReviewsView.
+        /// </summary>
         public ShowReviewsView()
         {
             InitializeComponent();
         }
+
+        /// <summary>
+        /// Устанавливает данные отзыва в элементы управления элемента управления.
+        /// </summary>
+        /// <param name="review">Объект отзыва, содержащий данные для отображения.</param>
         public void SetReview(Review review)
         {
             if (review == null) return;

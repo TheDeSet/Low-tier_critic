@@ -13,6 +13,11 @@ namespace View
 {
     public partial class UpdateGame : Form
     {
+        /// <summary>
+        /// Инициализирует форму редактирования игры. Заполняет список платформ из EnumPlatforms, загружает данные игры по указанному ID 
+        /// и настраивает обработчики событий для кнопок выбора изображений, сброса и сохранения изменений.
+        /// </summary>
+        /// <param name="gameId">ID игры для редактирования.</param>
         public UpdateGame(int gameId)
         {
             InitializeComponent();
@@ -32,6 +37,10 @@ namespace View
         private Image _currentIcon;
         private List<Image> _screenshots = new List<Image>();
 
+        /// <summary>
+        /// Загружает данные игры по указанному ID. Если игра не найдена, показывает сообщение об ошибке и закрывает форму.
+        /// </summary>
+        /// <param name="gameId">ID игры для загрузки.</param>
         private void LoadGame(int gameId)
         {
             _gameToEdit = Logic.GetGameById(gameId);
@@ -42,6 +51,10 @@ namespace View
                 return;
             }
         }
+        /// <summary>
+        /// Заполняет элементы управления формы данными загруженной игры: название, разработчик, год выпуска, описание, иконка, 
+        /// скриншоты и платформы. Устанавливает текущие значения в интерфейсе.
+        /// </summary>
         private void PopulateFields()
         {
             if (_gameToEdit == null) return;
@@ -68,6 +81,12 @@ namespace View
             }
         }
 
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки выбора иконки. Открывает диалог OpenFileDialog для выбора файла иконки, 
+        /// загружает изображение и обновляет PictureBox и текстовое поле пути.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_AddIconImage_Click(object sender, EventArgs e)
         {
             using var dialog = new OpenFileDialog
@@ -91,6 +110,12 @@ namespace View
             }
         }
 
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки выбора скриншотов. Открывает диалог OpenFileDialog с множественным выбором файлов, 
+        /// загружает выбранные изображения в список и обновляет текстовое поле с количеством файлов.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_AddScreenshotImage_Click(object sender, EventArgs e)
         {
             using var dialog = new OpenFileDialog
@@ -117,6 +142,12 @@ namespace View
                 TB_ScreenshotsPath.Text = $"{_screenshots.Count} файлов";
             }
         }
+
+        /// <summary>
+        /// Сбрасывает иконку игры к заглушке (No_image) и обновляет текстовое поле пути к иконке.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_Reset_Click(object sender, EventArgs e)
         {
             _currentIcon = View.Properties.Resources.No_image;
@@ -124,6 +155,12 @@ namespace View
             TB_IconPath.Text = "Иконка сброшена";
         }
 
+        /// <summary>
+        /// Обрабатывает событие сохранения изменений. Валидирует обязательные поля, обновляет данные игры, проверяет корректность года выпуска, 
+        /// обновляет платформы и сохраняет изменения через Logic.UpdateGame. Отображает сообщение об успехе или ошибке.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_Add_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TB_GameName.Text))
@@ -136,14 +173,12 @@ namespace View
                 MessageBox.Show("Введите разработчика.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            // Обновляем данные в объекте игры
             _gameToEdit.Name = TB_GameName.Text.Trim();
             _gameToEdit.Developer = TB_Developer.Text.Trim();
             _gameToEdit.Description = RTB_Description.Text.Trim();
             _gameToEdit.Icon = _currentIcon;
             _gameToEdit.Screenshots = new List<Image>(_screenshots);
 
-            // Год выпуска
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year > 1925)
             {
                 _gameToEdit.YearOfRelease = year;

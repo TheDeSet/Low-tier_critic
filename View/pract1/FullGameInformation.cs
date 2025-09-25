@@ -14,6 +14,11 @@ namespace View
 {
     public partial class FullGameInformation : Form
     {
+        /// <summary>
+        /// Инициализирует форму отображения информации об игре. Подписывает события для управления миниатюрами и кнопкой создания отзыва,
+        /// а также загружает данные игры по указанному ID.
+        /// </summary>
+        /// <param name="gameId">ID игры для отображения.</param>
         public FullGameInformation(int gameId)
         {
             InitializeComponent();
@@ -28,6 +33,9 @@ namespace View
         private int thumbnailHeight = 60;
         private int spacing = 5;
 
+        /// <summary>
+        /// Обновляет позицию миниатюр скриншотов при скролле горизонтального ползунка.
+        /// </summary>
         private void UpdateThumbnailsPosition()
         {
             int offset = HSCB_Thumbnails.Value;
@@ -38,6 +46,10 @@ namespace View
             }
         }
 
+        /// <summary>
+        /// Выделяет выбранную миниатюру скриншота, изменяя стиль рамки.
+        /// </summary>
+        /// <param name="selectedIndex">Индекс выбранной миниатюры.</param>
         private void HighlightSelectedThumbnail(int selectedIndex)
         {
             foreach (var thumb in thumbnailBoxes)
@@ -48,9 +60,13 @@ namespace View
             }
         }
 
+        /// <summary>
+        /// Загружает данные игры по указанному ID и заполняет элементы управления формой: название, разработчика, год выпуска, рейтинг, описание, 
+        /// платформы, отзывы и миниатюры скриншотов. Обрабатывает случаи отсутствия данных.
+        /// </summary>
+        /// <param name="gameId">ID игры для загрузки.</param>
         private void LoadGameData(int gameId)
         {
-            // Обращаемся к Logic для получения игры по ID
             var game = Logic.GetGameById(gameId);
 
             if (game == null)
@@ -60,7 +76,6 @@ namespace View
                 return;
             }
 
-            // Заполняем данные
             LB_GameName.Text = game.Name;
             LB_Developer.Text = $"{game.Developer}";
             LB_YearOfRelease.Text = game.YearOfRelease.HasValue ? $"{game.YearOfRelease}" : "не указан";
@@ -79,8 +94,6 @@ namespace View
                     
             }
 
-            // Рецензии
-            // Очистим контейнер (на случай повторного открытия)
             FLP_Reviews.Controls.Clear();
 
             if (game.Reviews != null && game.Reviews.Count > 0)
@@ -88,16 +101,15 @@ namespace View
                 foreach (var review in game.Reviews)
                 {
                     var reviewControl = new ShowReviewsView();
-                    reviewControl.SetReview(review); // Передаём данные в UserControl
+                    reviewControl.SetReview(review);
                     reviewControl.Dock = DockStyle.Top;
-                    reviewControl.Margin = new Padding(0, 0, 0, 5); // отступ снизу
+                    reviewControl.Margin = new Padding(0, 0, 0, 5);
 
                     FLP_Reviews.Controls.Add(reviewControl);
                 }
             }
             else
             {
-                // Если рецензий нет — показывает заглушку
                 var noReviewsLabel = new Label
                 {
                     Text = "Рецензии отсутствуют.",
@@ -109,22 +121,17 @@ namespace View
                 FLP_Reviews.Controls.Add(noReviewsLabel);
             }
 
-            // Скриншоты
-            // Очистка
             PNL_Thumbnails.Controls.Clear();
             thumbnailBoxes.Clear();
             allScreenshots.Clear();
 
-            // Добавляем скриншоты
             if (game.Screenshots != null)
                 allScreenshots.AddRange(game.Screenshots);
 
-            // Если есть хотя бы одно изображение — показываем первое как главное
             if (allScreenshots.Count > 0)
             {
                 PIC_GameImage.Image = allScreenshots[0];
 
-                // создание миниатюры
                 int totalWidth = 0;
                 for (int i = 0; i < allScreenshots.Count; i++)
                 {
@@ -173,6 +180,12 @@ namespace View
                 HSCB_Thumbnails.Enabled = false;
             }
         }
+
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки "Создать отзыв". Открывает форму AddReview для добавления отзыва к текущей игре и обновляет данные 
+        /// после успешного добавления.
+        /// </summary>
+        /// <param name="gameId">ID игры, к которой добавляется отзыв.</param>
         private void BTN_MakeReview_Click(int gameId)
         {
             var game = Logic.GetGameById(gameId);

@@ -1,11 +1,67 @@
 ﻿using Lab_3._1;
+using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
+using System.Reflection;
 using System.Text;
 
 namespace ViewConsole
 {
     internal class Program
     {
+        /// <summary>
+        /// Возвращает список строковых описаний всех платформ из перечисления EnumPlatforms.
+        /// </summary>
+        /// <returns>Список строк с описаниями платформ.</returns>
+        public static List<string> GetPlatformsStringList()
+        {
+            List<string> listOfPlatforms = new List<string>();
+            foreach (Enum platform in Enum.GetValues<EnumPlatforms>())
+            {
+                FieldInfo field = platform.GetType().GetField(platform.ToString());
+                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+                listOfPlatforms.Add(attribute.Description);
+            }
+            return listOfPlatforms;
+        }
+
+        /// <summary>
+        /// Возвращает список строковых описаний платформ для указанной игры.
+        /// </summary>
+        /// <param name="game">Игра, для которой получить платформы.</param>
+        /// <returns>Список строк с описаниями платформ игры.</returns>
+        public static List<string> GetPlatformsStringList(Game game)
+        {
+            List<string> listOfPlatforms = new List<string>();
+            foreach (Enum platform in game.Platforms)
+            {
+                FieldInfo field = platform.GetType().GetField(platform.ToString());
+                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+                listOfPlatforms.Add(attribute.Description);
+            }
+            return listOfPlatforms;
+        }
+
+        /// <summary>
+        /// Преобразует список строковых описаний в соответствующие значения перечисления.
+        /// </summary>
+        /// <typeparam name="T">Тип перечисления для преобразования.</typeparam>
+        /// <param name="descriptions">Список строковых описаний для преобразования.</param>
+        /// <returns>Список значений перечисления T, соответствующих описаниям.</returns>
+        public static List<T> FromDescriptionsToEnum<T>(IEnumerable<string> descriptions) where T : Enum
+        {
+            return descriptions.Select(d =>
+                Enum.GetValues(typeof(T))
+                    .Cast<T>()
+                    .First(c =>
+                        (typeof(T).GetField(c.ToString())?.GetCustomAttribute<DescriptionAttribute>()?.Description == d)
+                        || c.ToString() == d
+                    )
+            ).ToList();
+        }
+
+        /// <summary>
+        /// Отображает главное меню приложения с опциями выбора игры, управления списком, поиска/сортировки, сброса сортировки и выхода.
+        /// </summary>
         static void PrintMainMenu()
         {
             List<Game> listOfGames = Logic.GetGames();
@@ -37,10 +93,14 @@ namespace ViewConsole
             }
         }
 
+        /// <summary>
+        /// Отображает список игр и позволяет выбрать игру для просмотра, изменения или удаления.
+        /// </summary>
+        /// <param name="listOfGames">Список игр для отображения.</param>
+        /// <param name="mode">Режим действия: 0 - просмотр игр, 1 - изменение данных, 2 - удаление.</param>
         static void PrintGameSelect(List<Game> listOfGames, int mode)//0=inspect 1=modify 2=delete
         {
             int index = 1;
-            int inputInt = 0;
             while (true)
             {
                 Console.Clear();
@@ -51,10 +111,9 @@ namespace ViewConsole
                     index++;
                 }
                 Console.WriteLine($"{index}. Назад");
-                var key = Console.ReadKey(true);
-                if (char.IsDigit(key.KeyChar))
+                string bufferLine = Console.ReadLine();
+                if (Int32.TryParse(bufferLine, out int inputInt))
                 {
-                    inputInt = key.KeyChar - '0';
                     if (inputInt > 0 && inputInt < listOfGames.Count + 2)
                     {
                         if (!(inputInt > listOfGames.Count))
@@ -82,11 +141,15 @@ namespace ViewConsole
 
         }
 
+        /// <summary>
+        /// Отображает детали игры по указанному ID, включая платформы, описание, рейтинги и отзывы.
+        /// </summary>
+        /// <param name="id">ID игры для отображения.</param>
         static void PrintGameDetails(int id)
         {
             Game game = Logic.GetGameById(id);
             string gamePlatforms = "";
-            foreach (string platform in Logic.GetPlatformsStringList(game))
+            foreach (string platform in GetPlatformsStringList(game))
             {
                 gamePlatforms += platform + "   ";
             }
@@ -114,6 +177,10 @@ namespace ViewConsole
             }
         }
 
+        /// <summary>
+        /// Позволяет пользователю создать отзыв для игры.
+        /// </summary>
+        /// <param name="id">ID игры, для которой создается отзыв.</param>
         static void MakeAReview(int id)
         {
             Console.Clear();
@@ -145,6 +212,10 @@ namespace ViewConsole
             Logic.AddReviewToGame(id, review);
         }
 
+        /// <summary>
+        /// Отображает меню управления списком игр (добавление, изменение, удаление).
+        /// </summary>
+        /// <param name="listOfGames">Список игр для управления.</param>
         static void PrintControlMenu(List<Game> listOfGames)
         {
             while (true)
@@ -171,6 +242,9 @@ namespace ViewConsole
             }
         }
 
+        /// <summary>
+        /// Запрашивает у пользователя данные для добавления новой игры и сохраняет её через логику.
+        /// </summary>
         static void PrintAddGameMenu()
         {
             Game game = new Game();
@@ -220,7 +294,7 @@ namespace ViewConsole
                 }
             }
             int chosenPlatforms = 0;
-            List<string> listOfPlatforms = Logic.GetPlatformsStringList();
+            List<string> listOfPlatforms = GetPlatformsStringList();
             List<string> listOfChsnPlat = new List<string>();
             while (true)
             {
@@ -255,17 +329,33 @@ namespace ViewConsole
                     }
                 }
             }
-            game.Platforms = Logic.FromDescriptionsToEnum<EnumPlatforms>(listOfChsnPlat);
+            game.Platforms = FromDescriptionsToEnum<EnumPlatforms>(listOfChsnPlat);
             Logic.AddGame(game);
         }
 
+        /// <summary>
+        /// Отображает меню для изменения данных существующей игры.
+        /// </summary>
+        /// <param name="id">ID игры для изменения.</param>
         static void PrintModifyMenu(int id)
         {
-            Game game = Logic.GetGameById(id);
-            while (true)
+            Game game = new Game();
+            Game gameOld = Logic.GetGameById(id);
+            game.ID = gameOld.ID;
+            game.Name = gameOld.Name;
+            game.Developer = gameOld.Developer;
+            game.YearOfRelease = gameOld.YearOfRelease;
+            game.Platforms = gameOld.Platforms;
+            game.Rating = gameOld.Rating;
+            game.Description = gameOld.Description;
+            game.Icon = gameOld.Icon;
+            game.Screenshots = gameOld.Screenshots;
+            game.Reviews = gameOld.Reviews;
+            bool isContinuing = true;
+            while (isContinuing)
             {
                 Console.Clear();
-                Console.WriteLine("1. Изменить название\n2. Изменить разработчика\n3. Изменить год выпуска\n4. Измнить описание\n5. Изменить платформы");
+                Console.WriteLine("1. Изменить название\n2. Изменить разработчика\n3. Изменить год выпуска\n4. Измнить описание\n5. Изменить платформы \n6. Назад");
                 var key = Console.ReadKey(true);
                 switch (key.KeyChar)
                 {
@@ -325,7 +415,7 @@ namespace ViewConsole
                     case '5':
                         int chosenPlatforms = 0;
                         int inputInt = 0;
-                        List<string> listOfPlatforms = Logic.GetPlatformsStringList();
+                        List<string> listOfPlatforms = GetPlatformsStringList();
                         List<string> listOfChsnPlat = new List<string>();
                         while (true)
                         {
@@ -345,7 +435,7 @@ namespace ViewConsole
                             {
                                 Console.WriteLine($"{index}. Готово");
                             }
-                            var line = Console.ReadLine();
+                            string line = Console.ReadLine();
                             if (Int32.TryParse(line, out int bufferInt))
                             {
                                 if (bufferInt > 0 && bufferInt < listOfPlatforms.Count + 1)
@@ -356,18 +446,28 @@ namespace ViewConsole
                                 }
                                 else if (chosenPlatforms > 0 && bufferInt == listOfPlatforms.Count + 1)
                                 {
+                                    game.Platforms = FromDescriptionsToEnum<EnumPlatforms>(listOfChsnPlat);
                                     break;
                                 }
                             }
                         }
-                        game.Platforms = Logic.FromDescriptionsToEnum<EnumPlatforms>(listOfChsnPlat);
                         break;
+                    case '6':
+                        {
+                            Logic.UpdateGame(game);
+                            isContinuing = false;
+                            break;
+                        }            
                     default:
                         break;
                 }
             }
         }
 
+        /// <summary>
+        /// Подтверждает удаление игры с указанным ID.
+        /// </summary>
+        /// <param name="id">ID игры для удаления.</param>
         static void PrintDeletionMenu(int id)
         {
             Game game = Logic.GetGameById(id);
@@ -387,6 +487,10 @@ namespace ViewConsole
             }
         }
 
+        /// <summary>
+        /// Отображает меню для поиска и сортировки игр и возвращает отфильтрованный список.
+        /// </summary>
+        /// <returns>Список игр, отфильтрованных по заданным критериям.</returns>
         static List<Game> PrintSearchAndFilterMenu()
         {
             string searchField = "искать по всему";
@@ -400,7 +504,8 @@ namespace ViewConsole
                 switch (key.KeyChar)
                 {
                     case '1':
-                        while (true)
+                        bool isContinuing = true;
+                        while (isContinuing)
                         {
                             Console.Clear();
                             Console.WriteLine("1. Названию\n2. Разработчику\n3. По всему");
@@ -409,12 +514,15 @@ namespace ViewConsole
                             {
                                 case '1':
                                     searchField = "названию";
+                                    isContinuing = false;
                                     break;
                                 case '2':
                                     searchField = "разработчику";
+                                    isContinuing = false;
                                     break;
                                 case '3':
                                     searchField = "искать по всему";
+                                    isContinuing = false;
                                     break;
                             }
                         }

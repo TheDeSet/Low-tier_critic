@@ -11,63 +11,40 @@ namespace Lab_3._1
 {
     public class Logic
     {
-        // Пример: хранилище в памяти. В будущем можно заменить на БД или файл.
+        // Хранилище в памяти. В будущем можно заменить на БД или файл.
         private static List<Game> _games = new List<Game>();
 
         static Logic()
         {
-            // Загружаем тестовые данные при первом обращении
             _games = TestData.GenerateSampleGames();
         }
 
-        // Метод для получения игры по ID
+        /// <summary>
+        /// Получает игру по указанному ID.
+        /// </summary>
+        /// <param name="id">ID игры для поиска.</param>
+        /// <returns>Объект Game, если найден; иначе null.</returns>
         public static Game GetGameById(int id)
         {
             return _games.FirstOrDefault(g => g.ID == id);
         }
 
-        public static List<string> GetPlatformsStringList()
-        {
-            List<string> listOfPlatforms = new List<string>();
-            foreach (Enum platform in Enum.GetValues<EnumPlatforms>())
-            {
-                FieldInfo field = platform.GetType().GetField(platform.ToString());
-                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
-                listOfPlatforms.Add(attribute.Description);
-            }
-            return listOfPlatforms;
-        }
-
-        public static List<string> GetPlatformsStringList(Game game)
-        {
-            List<string> listOfPlatforms = new List<string>();
-            foreach (Enum platform in game.Platforms)
-            {
-                FieldInfo field = platform.GetType().GetField(platform.ToString());
-                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
-                listOfPlatforms.Add(attribute.Description);
-            }
-            return listOfPlatforms;
-        }
-
-        public static List<T> FromDescriptionsToEnum<T>(IEnumerable<string> descriptions) where T : Enum
-        {
-            return descriptions.Select(d =>
-                Enum.GetValues(typeof(T))
-                    .Cast<T>()
-                    .First(c =>
-                        (typeof(T).GetField(c.ToString())?.GetCustomAttribute<DescriptionAttribute>()?.Description == d)
-                        || c.ToString() == d
-                    )
-            ).ToList();
-        }
-
-        // Метод для получения всех игр (для плиток)
+        /// <summary>
+        /// Возвращает все игры из хранилища.
+        /// </summary>
+        /// <returns>Список всех игр.</returns>
         public static List<Game> GetGames()
         {
             return _games;
         }
 
+        /// <summary>
+        /// Фильтрует и сортирует игры по заданным параметрам.
+        /// </summary>
+        /// <param name="searchField">Поле для поиска (названию, разработчику, искать по всему).</param>
+        /// <param name="searchText">Текст для поиска.</param>
+        /// <param name="sortOption">Опция сортировки (возрастанию (рейтинг), убыванию (рейтинг)).</param>
+        /// <returns>Отфильтрованный и отсортированный список игр.</returns>
         public static List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
             var result = _games.AsEnumerable();
@@ -92,7 +69,6 @@ namespace Lab_3._1
                         break;
                 }
             }
-            // Сортировка
             switch (sortOption)
             {
                 case "возрастанию (рейтинг)":
@@ -102,10 +78,16 @@ namespace Lab_3._1
                     result = result.OrderByDescending(g => g.Rating ?? 0);
                     break;
             }
-
             return result.ToList();
         }
 
+        /// <summary>
+        /// Добавляет новую игру в хранилище.
+        /// </summary>
+        /// <param name="game">Объект игры для добавления.</param>
+        /// <remarks>
+        /// Автоматически назначает ID (максимальный текущий +1), инициализирует пустые списки (Platforms, Screenshots, Reviews) при необходимости.
+        /// </remarks>
         public static void AddGame(Game game)
         {
             // Автоматически назначаем ID
@@ -119,6 +101,12 @@ namespace Lab_3._1
             
             _games.Add(game);
         }
+
+        /// <summary>
+        /// Обновляет существующую игру по ID.
+        /// </summary>
+        /// <param name="updatedGame">Обновленный объект игры.</param>
+        /// <returns>true, если игра обновлена; иначе false.</returns>
         public static bool UpdateGame(Game updatedGame)
         {
             var existingGame = _games.FirstOrDefault(g => g.ID == updatedGame.ID);
@@ -136,6 +124,11 @@ namespace Lab_3._1
             return true;
         }
 
+        /// <summary>
+        /// Удаляет игру по указанному ID из хранилища.
+        /// </summary>
+        /// <param name="gameId">ID удаляемой игры.</param>
+        /// <returns>true, если игра удалена; иначе false.</returns>
         public static bool DeleteGame(int gameId)
         {
             var game = _games.FirstOrDefault(g => g.ID == gameId);
@@ -144,24 +137,28 @@ namespace Lab_3._1
             return _games.Remove(game);
         }
 
+        /// <summary>
+        /// Добавляет отзыв к указанной игре.
+        /// </summary>
+        /// <param name="gameId">ID игры, к которой добавляется отзыв.</param>
+        /// <param name="review">Объект отзыва для добавления.</param>
+        /// <remarks>
+        /// Автоматически устанавливает имя "Аноним" при отсутствии, ограничивает рейтинг в диапазоне 1.0–5.0, пересчитывает средний рейтинг игры.
+        /// </remarks>
+        /// <returns>true, если отзыв добавлен; иначе false.</returns>
         public static bool AddReviewToGame(int gameId, Review review)
         {
             var game = _games.FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
-            // Инициализируем список, если null
             game.Reviews ??= new List<Review>();
 
-            // Автоимя "Аноним", если не указано
             review.Username = string.IsNullOrWhiteSpace(review.Username) ? "Аноним" : review.Username.Trim();
 
-            // Ограничиваем рейтинг 1.0–5.0
             review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
 
-            // Добавляем отзыв
             game.Reviews.Add(review);
 
-            // ➤➤➤ Опционально: пересчитываем рейтинг игры (среднее по отзывам)
             if (game.Reviews.Count > 0)
             {
                 game.Rating = game.Reviews.Average(r => r.Rating);

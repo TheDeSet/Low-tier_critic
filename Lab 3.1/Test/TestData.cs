@@ -136,7 +136,7 @@ namespace Lab_3._1.Test
             try
             {
                 // Путь к изображениям — предполагаем, что они лежат в папке "Images" рядом с .exe
-                string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "D:\\Projects\\pract1\\pract1\\Pictures", fileName);
+                string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\View\\pract1\\Pictures\\", fileName);
                 return System.IO.File.Exists(path) ? Image.FromFile(path) : Properties.Resources.No_image;
             }
             catch

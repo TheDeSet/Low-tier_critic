@@ -22,19 +22,21 @@ namespace pract1
             };
             BTN_Menu.Click += (s, e) =>
             {
-                // Переключаем видимость
                 PNL_Menu.Visible = !PNL_Menu.Visible;
             };
             BTN_Delete.Click += OnDeleteButtonClick;
             BTN_Add.Click += BTN_Add_Click;
         }
 
+        /// <summary>
+        /// Загружает список игр с учетом текущих параметров фильтрации, поиска и сортировки из интерфейса. Очищает контейнер плиток и 
+        /// добавляет новую плитку для каждой игры из отфильтрованного списка. Обрабатывает событие обновления данных игры.
+        /// </summary>
         private void LoadGames()
         {
             if (FLP_GamesView == null) return;
             FLP_GamesView.Controls.Clear();
 
-            // Получаем параметры из UI
             string searchField = CMB_Filter.SelectedItem?.ToString() ?? "искать по всему";
             string searchText = TB_Search.Text?.Trim() ?? "";
             string sortOption = CMB_Sort.SelectedItem?.ToString() ?? "без сортировки";
@@ -45,7 +47,6 @@ namespace pract1
                 sortOption
             );
 
-            // Отображаем результат
             foreach (var game in filteredGames)
             {
                 var tile = new ShowGameView();
@@ -58,9 +59,15 @@ namespace pract1
                 FLP_GamesView.Controls.Add(tile);
             }
         }
+
+        /// <summary>
+        /// Обрабатывает событие удаления игры. Находит выделенную плитку, запрашивает подтверждение удаления, удаляет игру через логику 
+        /// и обновляет список плиток. Отображает сообщения об успешном удалении или ошибках.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void OnDeleteButtonClick(object sender, EventArgs e)
         {
-            // Находим выделенную плитку
             ShowGameView selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
             {
@@ -77,7 +84,6 @@ namespace pract1
                 return;
             }
 
-            // Подтверждение
             var result = MessageBox.Show(
                 $"Вы уверены, что хотите удалить игру \"{selectedTile.GameData.Name}\"?",
                 "Подтверждение удаления",
@@ -93,7 +99,7 @@ namespace pract1
                 if (success)
                 {
                     MessageBox.Show("Успешно удалено", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadGames(); // Обновляем список плиток
+                    LoadGames();
                 }
                 else
                 {
@@ -106,6 +112,11 @@ namespace pract1
             }
         }
 
+        /// <summary>
+        /// Обрабатывает событие добавления новой игры. Открывает форму AddNewGame для ввода данных новой игры и обновляет список игр после закрытия формы.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_Add_Click(object? sender, EventArgs e)
         {
             AddNewGame addNewGame = new();
@@ -113,9 +124,14 @@ namespace pract1
             LoadGames();
         }
 
+        /// <summary>
+        /// Обрабатывает событие обновления данных игры. Находит выделенную плитку, открывает форму UpdateGame для редактирования данных игры 
+        /// и обновляет список плиток после успешного изменения.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_Update_Click(object sender, EventArgs e)
         {
-            // Находим выделенную плитку
             ShowGameView selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
             {
@@ -135,7 +151,7 @@ namespace pract1
             UpdateGame UpdGame = new UpdateGame(selectedTile.GameData.ID);
             if (UpdGame.ShowDialog() == DialogResult.OK)
             {
-                LoadGames(); // Обновляем список плиток
+                LoadGames();
             }
         }
     }

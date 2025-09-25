@@ -31,6 +31,13 @@ namespace View
 
         private Image _currentIcon;
         private List<Image> _screenshots = new List<Image>();
+
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки выбора иконки игры. Открывает диалог OpenFileDialog для выбора файла иконки, 
+        /// загружает изображение и обновляет PictureBox и текстовое поле пути.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_AddIconImage_Click(object sender, EventArgs e)
         {
             using var dialog = new OpenFileDialog
@@ -55,6 +62,12 @@ namespace View
             }
         }
 
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки выбора скриншотов. Открывает диалог OpenFileDialog с множественным выбором файлов, 
+        /// загружает изображения в список и обновляет текстовое поле с количеством выбранных файлов.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_AddScreenshotImage_Click(object sender, EventArgs e)
         {
             using var dialog = new OpenFileDialog
@@ -82,6 +95,11 @@ namespace View
             }
         }
 
+        /// <summary>
+        /// Сбрасывает текущую иконку игры к заглушке (No_image) и очищает текстовое поле пути к иконке.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_Reset_Click(object sender, EventArgs e)
         {
             _currentIcon = View.Properties.Resources.No_image;
@@ -89,9 +107,14 @@ namespace View
             TB_IconPath.Text = "";
         }
 
+        /// <summary>
+        /// Обрабатывает событие нажатия кнопки добавления игры. Проверяет обязательные поля, создает новую игру с введенными данными, 
+        /// добавляет её через Logic.AddGame, показывает сообщение об успехе и сбрасывает форму.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BTN_Add_Click(object sender, EventArgs e)
         {
-            // Валидация обязательных полей
             if (string.IsNullOrWhiteSpace(TB_GameName.Text))
             {
                 MessageBox.Show("Введите название игры.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -102,17 +125,15 @@ namespace View
                 MessageBox.Show("Введите разработчика.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            // Создаём новую игру
             var newGame = new Game
             {
                 Name = TB_GameName.Text.Trim(),
                 Developer = TB_Developer.Text.Trim(),
                 Description = RTB_Description.Text.Trim(),
                 Icon = _currentIcon,
-                Screenshots = new List<Image>(_screenshots), // копируем
+                Screenshots = new List<Image>(_screenshots),
                 Platforms = new List<EnumPlatforms>()
             };
-            // Год выпуска
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year >= 1925)
             {
                 newGame.YearOfRelease = year;
@@ -122,8 +143,6 @@ namespace View
                 MessageBox.Show("Дата релиза не может быть меньше чем 1925.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            // Платформы
             foreach (int index in CHKLTB_Platform.CheckedIndices)
             {
                 if (Enum.IsDefined(typeof(EnumPlatforms), index))
@@ -140,6 +159,9 @@ namespace View
             this.Close();
         }
 
+        /// <summary>
+        /// Сбрасывает все поля формы в начальное состояние: очищает текстовые поля, сбрасывает выбранные платформы и изображения.
+        /// </summary>
         private void ResetForm()
         {
             TB_GameName.Text = "";
