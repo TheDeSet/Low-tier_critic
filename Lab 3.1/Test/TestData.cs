@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab_3._1.Test
+namespace Model.Test
 {
     public static class TestData
     {
@@ -136,7 +137,7 @@ namespace Lab_3._1.Test
             try
             {
                 // Путь к изображениям — предполагаем, что они лежат в папке "Images" рядом с .exe
-                string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\View\\pract1\\Pictures\\", fileName);
+                string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "D:\\CloneGIT\\Low-tier_critic\\View\\pract1\\Pictures", fileName);
                 return System.IO.File.Exists(path) ? Image.FromFile(path) : Properties.Resources.No_image;
             }
             catch

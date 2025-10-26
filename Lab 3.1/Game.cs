@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab_3._1
+namespace Model
 {
-    public class Game
+    public class Game : IDomainObject
     {
         public int ID { get; set; }
         public string Name { get; set; } = "Unknown";

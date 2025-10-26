@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Lab_3._1;
+using BusinessLogic;
 
 namespace View
 {

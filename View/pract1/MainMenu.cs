@@ -1,4 +1,4 @@
-﻿using Lab_3._1;
+﻿using BusinessLogic;
 using View;
 
 namespace pract1
@@ -40,7 +40,6 @@ namespace pract1
             string searchField = CMB_Filter.SelectedItem?.ToString() ?? "искать по всему";
             string searchText = TB_Search.Text?.Trim() ?? "";
             string sortOption = CMB_Sort.SelectedItem?.ToString() ?? "без сортировки";
-
             var filteredGames = Logic.GetFilteredGames(
                 searchField,
                 searchText,

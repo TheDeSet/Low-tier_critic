@@ -1,4 +1,4 @@
-﻿using Lab_3._1;
+﻿using BusinessLogic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +25,7 @@ namespace View
         /// Устанавливает данные отзыва в элементы управления элемента управления.
         /// </summary>
         /// <param name="review">Объект отзыва, содержащий данные для отображения.</param>
-        public void SetReview(Review review)
+        public void SetReview(Model.Review review)
         {
             if (review == null) return;
             PIC_UserIcon.Image = View.Properties.Resources.User;

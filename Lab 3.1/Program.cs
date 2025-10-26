@@ -1,6 +1,6 @@
-using Lab_3._1;
+using Model;
 
-namespace Lab_3._1
+namespace Model
 {
     internal static class Program
     {

@@ -1,4 +1,4 @@
-﻿using Lab_3._1.Test;
+﻿using Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reflection;
+using Model.Test;
+using System.Drawing;
 
-namespace Lab_3._1
+namespace BusinessLogic
 {
     public class Logic
     {

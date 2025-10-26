@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-namespace Lab_3._1
+namespace Model
 {
     public enum EnumPlatforms
     {

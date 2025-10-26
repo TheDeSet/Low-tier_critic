@@ -1,4 +1,4 @@
-﻿using Lab_3._1;
+﻿using BusinessLogic;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Reflection;
@@ -15,7 +15,7 @@ namespace ViewConsole
         public static List<string> GetPlatformsStringList()
         {
             List<string> listOfPlatforms = new List<string>();
-            foreach (Enum platform in Enum.GetValues<EnumPlatforms>())
+            foreach (Enum platform in Enum.GetValues<Model.EnumPlatforms>())
             {
                 FieldInfo field = platform.GetType().GetField(platform.ToString());
                 DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
@@ -29,7 +29,7 @@ namespace ViewConsole
         /// </summary>
         /// <param name="game">Игра, для которой получить платформы.</param>
         /// <returns>Список строк с описаниями платформ игры.</returns>
-        public static List<string> GetPlatformsStringList(Game game)
+        public static List<string> GetPlatformsStringList(Model.Game game)
         {
             List<string> listOfPlatforms = new List<string>();
             foreach (Enum platform in game.Platforms)
@@ -64,7 +64,7 @@ namespace ViewConsole
         /// </summary>
         static void PrintMainMenu()
         {
-            List<Game> listOfGames = Logic.GetGames();
+            List<Model.Game> listOfGames = Logic.GetGames();
             while (true)
             {
                 Console.Clear();
@@ -98,14 +98,14 @@ namespace ViewConsole
         /// </summary>
         /// <param name="listOfGames">Список игр для отображения.</param>
         /// <param name="mode">Режим действия: 0 - просмотр игр, 1 - изменение данных, 2 - удаление.</param>
-        static void PrintGameSelect(List<Game> listOfGames, int mode)//0=inspect 1=modify 2=delete
+        static void PrintGameSelect(List<Model.Game> listOfGames, int mode)//0=inspect 1=modify 2=delete
         {
             int index = 1;
             while (true)
             {
                 Console.Clear();
                 index = 1;
-                foreach (Game game in listOfGames)
+                foreach (Model.Game game in listOfGames)
                 {
                     Console.WriteLine($"{index}. {game.Name} -- {game.Developer}");
                     index++;
@@ -147,7 +147,7 @@ namespace ViewConsole
         /// <param name="id">ID игры для отображения.</param>
         static void PrintGameDetails(int id)
         {
-            Game game = Logic.GetGameById(id);
+            Model.Game game = Logic.GetGameById(id);
             string gamePlatforms = "";
             foreach (string platform in GetPlatformsStringList(game))
             {
@@ -159,7 +159,7 @@ namespace ViewConsole
                 Console.Clear();
                 Console.WriteLine($"{game.Name}\n{game.YearOfRelease}\n{game.Developer}\nРейтинг: {game.Rating}\n{gamePlatforms}\n\n{game.Description}\n\nОтзывы:");
                 int reviewNumber = 1;
-                foreach (Review review in game.Reviews)
+                foreach (Model.Review review in game.Reviews)
                 {
                     Console.WriteLine($"{reviewNumber}. {review.Username}\nРейтинг: {review.Rating}\n{review.ReviewText}\n\n\n");
                     reviewNumber++;
@@ -184,7 +184,7 @@ namespace ViewConsole
         static void MakeAReview(int id)
         {
             Console.Clear();
-            Review review = new Review();
+            Model.Review review = new Model.Review();
             Console.WriteLine("Напишите имя пользователся (или оставьте пустым для анонимной публикации)");
             string inputString = Console.ReadLine();
             if (inputString == "" || (inputString.Length > 0 && inputString.All(c => c == ' ')))
@@ -216,7 +216,7 @@ namespace ViewConsole
         /// Отображает меню управления списком игр (добавление, изменение, удаление).
         /// </summary>
         /// <param name="listOfGames">Список игр для управления.</param>
-        static void PrintControlMenu(List<Game> listOfGames)
+        static void PrintControlMenu(List<Model.Game> listOfGames)
         {
             while (true)
             {
@@ -247,7 +247,7 @@ namespace ViewConsole
         /// </summary>
         static void PrintAddGameMenu()
         {
-            Game game = new Game();
+            Model.Game game = new();
             string inputString = "";
             while (true)
             {
@@ -329,7 +329,7 @@ namespace ViewConsole
                     }
                 }
             }
-            game.Platforms = FromDescriptionsToEnum<EnumPlatforms>(listOfChsnPlat);
+            game.Platforms = FromDescriptionsToEnum<Model.EnumPlatforms>(listOfChsnPlat);
             Logic.AddGame(game);
         }
 
@@ -339,8 +339,8 @@ namespace ViewConsole
         /// <param name="id">ID игры для изменения.</param>
         static void PrintModifyMenu(int id)
         {
-            Game game = new Game();
-            Game gameOld = Logic.GetGameById(id);
+            Model.Game game = new();
+            Model.Game gameOld = Logic.GetGameById(id);
             game.ID = gameOld.ID;
             game.Name = gameOld.Name;
             game.Developer = gameOld.Developer;
@@ -446,7 +446,7 @@ namespace ViewConsole
                                 }
                                 else if (chosenPlatforms > 0 && bufferInt == listOfPlatforms.Count + 1)
                                 {
-                                    game.Platforms = FromDescriptionsToEnum<EnumPlatforms>(listOfChsnPlat);
+                                    game.Platforms = FromDescriptionsToEnum<Model.EnumPlatforms>(listOfChsnPlat);
                                     break;
                                 }
                             }
@@ -470,7 +470,7 @@ namespace ViewConsole
         /// <param name="id">ID игры для удаления.</param>
         static void PrintDeletionMenu(int id)
         {
-            Game game = Logic.GetGameById(id);
+            Model.Game game = Logic.GetGameById(id);
             while (true)
             {
                 Console.Clear();
@@ -491,7 +491,7 @@ namespace ViewConsole
         /// Отображает меню для поиска и сортировки игр и возвращает отфильтрованный список.
         /// </summary>
         /// <returns>Список игр, отфильтрованных по заданным критериям.</returns>
-        static List<Game> PrintSearchAndFilterMenu()
+        static List<Model.Game> PrintSearchAndFilterMenu()
         {
             string searchField = "искать по всему";
             string? searchText = null;

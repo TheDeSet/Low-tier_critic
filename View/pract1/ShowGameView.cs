@@ -1,4 +1,4 @@
-﻿using Lab_3._1;
+﻿using BusinessLogic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,14 +41,14 @@ namespace pract1
             LB_Developer.Click += ShowGameView_Click;
         }
 
-        public Game GameData { get; private set; }
+        public Model.Game GameData { get; private set; }
         public bool IsSelected { get; private set; }
 
         /// <summary>
         /// Устанавливает данные игры в элементы управления плитки (название, разработчик, рейтинг, иконка).
         /// </summary>
         /// <param name="game">Объект игры для отображения.</param>
-        public void SetGame(Game game) 
+        public void SetGame(Model.Game game) 
         {
             GameData = game; 
             if (game == null) return;

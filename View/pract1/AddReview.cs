@@ -1,4 +1,4 @@
-﻿using Lab_3._1;
+﻿using BusinessLogic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -45,7 +45,7 @@ namespace View
                 MessageBox.Show("Введите ваши впечатления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var review = new Review
+            var review = new Model.Review 
             {
                 Username = TB_Username.Text,
                 Rating = rating,
