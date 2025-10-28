@@ -45,7 +45,7 @@ namespace View
                 MessageBox.Show("Введите ваши впечатления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var review = new Model.Review 
+            var review = new Entities.Review 
             {
                 Username = TB_Username.Text,
                 Rating = rating,

@@ -21,7 +21,7 @@ namespace View
         public UpdateGame(int gameId)
         {
             InitializeComponent();
-            foreach (Model.EnumPlatforms platform in Enum.GetValues(typeof(Model.EnumPlatforms)))
+            foreach (Entities.EnumPlatforms platform in Enum.GetValues(typeof(Entities.EnumPlatforms)))
             {
                 CHKLTB_Platform.Items.Add(platform);
             }
@@ -33,7 +33,7 @@ namespace View
             BTN_Add.Click += BTN_Add_Click;
         }
 
-        private Model.Game _gameToEdit;
+        private Entities.Game _gameToEdit;
         private Image _currentIcon;
         private List<Image> _screenshots = new List<Image>();
 
@@ -76,7 +76,7 @@ namespace View
             // Платформы
             for (int i = 0; i < CHKLTB_Platform.Items.Count; i++)
             {
-                var platform = (Model.EnumPlatforms)i;
+                var platform = (Entities.EnumPlatforms)i;
                 CHKLTB_Platform.SetItemChecked(i, _gameToEdit.Platforms?.Contains(platform) == true);
             }
         }
@@ -190,12 +190,12 @@ namespace View
             }
 
             // Платформы
-            _gameToEdit.Platforms = new List<Model.EnumPlatforms>();
+            _gameToEdit.Platforms = new List<Entities.EnumPlatforms>();
             for (int i = 0; i < CHKLTB_Platform.Items.Count; i++)
             {
                 if (CHKLTB_Platform.GetItemChecked(i))
                 {
-                    _gameToEdit.Platforms.Add((Model.EnumPlatforms)i);
+                    _gameToEdit.Platforms.Add((Entities.EnumPlatforms)i);
                 }
             }
 

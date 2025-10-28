@@ -17,7 +17,7 @@ namespace View
         {
             InitializeComponent();
             // Заполнение CHKLTB_Platform
-            foreach (Model.EnumPlatforms platform in Enum.GetValues(typeof(Model.EnumPlatforms)))
+            foreach (Entities.EnumPlatforms platform in Enum.GetValues(typeof(Entities.EnumPlatforms)))
             {
                 CHKLTB_Platform.Items.Add(platform);
             }
@@ -125,14 +125,14 @@ namespace View
                 MessageBox.Show("Введите разработчика.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var newGame = new Model.Game
+            var newGame = new Entities.Game
             {
                 Name = TB_GameName.Text.Trim(),
                 Developer = TB_Developer.Text.Trim(),
                 Description = RTB_Description.Text.Trim(),
                 Icon = _currentIcon,
                 Screenshots = new List<Image>(_screenshots),
-                Platforms = new List<Model.EnumPlatforms>()
+                Platforms = new List<Entities.EnumPlatforms>()
             };
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year >= 1925)
             {
@@ -145,9 +145,9 @@ namespace View
             }
             foreach (int index in CHKLTB_Platform.CheckedIndices)
             {
-                if (Enum.IsDefined(typeof(Model.EnumPlatforms), index))
+                if (Enum.IsDefined(typeof(Entities.EnumPlatforms), index))
                 {
-                    newGame.Platforms.Add((Model.EnumPlatforms)index);
+                    newGame.Platforms.Add((Entities.EnumPlatforms)index);
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿using Model;
+﻿using Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reflection;
-using Model.Test;
+using Entities.Test;
 using System.Drawing;
 
 namespace BusinessLogic

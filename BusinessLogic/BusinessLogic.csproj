@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Lab 3.1\Model.csproj" />
+    <ProjectReference Include="..\DAL\DataAccessLayer.csproj" />
+    <ProjectReference Include="..\Lab 3.1\Entities.csproj" />
   </ItemGroup>
 
 </Project>

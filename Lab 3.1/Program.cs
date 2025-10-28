@@ -1,6 +1,6 @@
-using Model;
+using Entities;
 
-namespace Model
+namespace Entities
 {
     internal static class Program
     {
