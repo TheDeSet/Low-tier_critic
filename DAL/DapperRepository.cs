@@ -23,7 +23,7 @@ namespace DataAccessLayer
             {
                 Game game = entity as Game;
                 game.Platforms ??= new List<EnumPlatforms>();
-                game.Screenshots ??= new List<Image>();
+                game.Screenshots ??= new List<string>();
                 game.Reviews ??= new List<Review>();
                 //Тут будет сериализация списков
                 string sqlQuery = @"INSERT INTO Games (ID, Name, Developer, YearOfRelease, Platforms, Rating, Description, Icon, Screenshots) " +

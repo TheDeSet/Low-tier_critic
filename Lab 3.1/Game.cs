@@ -15,8 +15,8 @@ namespace Entities
         public List<EnumPlatforms> Platforms { get; set; }
         public float? Rating { get; set; }
         public string Description { get; set; } = "Empty";
-        public Image Icon { get; set; }
-        public List<Image> Screenshots { get; set; }
+        public string Icon { get; set; }
+        public List<string> Screenshots { get; set; }
         public List<Review> Reviews { get; set; }
     }
 }

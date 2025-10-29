@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -26,11 +27,10 @@ namespace View
             BTN_Reset.Click += BTN_Reset_Click;
             BTN_Add.Click += BTN_Add_Click;
             PIC_Game.Image = View.Properties.Resources.No_image; // заглушка
-            _currentIcon = View.Properties.Resources.No_image;
         }
 
-        private Image _currentIcon;
-        private List<Image> _screenshots = new List<Image>();
+        private string _currentIcon;
+        private List<string> _screenshots = new List<string>();
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки выбора иконки игры. Открывает диалог OpenFileDialog для выбора файла иконки, 
@@ -49,15 +49,31 @@ namespace View
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
+                _currentIcon = Path.GetFileNameWithoutExtension(dialog.FileName);
+                TB_IconPath.Text = dialog.FileName;
                 try
                 {
-                    _currentIcon = Image.FromFile(dialog.FileName);
-                    PIC_Game.Image = _currentIcon;
-                    TB_IconPath.Text = dialog.FileName;
+                    // Получаем имя файла
+                    string sourceFile = dialog.FileName;
+                    string fileName = Path.GetFileName(sourceFile);
+
+                    // Определяем путь назначения
+                    string destPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Pictures", fileName);
+
+                    // Копируем файл
+                    File.Copy(sourceFile, destPath, overwrite: true);
+
+                    // Сохраняем только имя файла
+                    _currentIcon = fileName;
+                    TB_IconPath.Text = fileName;
+
+                    // Отображаем
+                    PIC_Game.Image = Image.FromFile(destPath);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    PIC_Game.Image = Properties.Resources.No_image;
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -84,7 +100,11 @@ namespace View
                 {
                     try
                     {
-                        _screenshots.Add(Image.FromFile(file));
+                        string fileName = Path.GetFileName(file);
+                        string destPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Pictures", fileName);
+
+                        File.Copy(file, destPath, overwrite: true);
+                        _screenshots.Add(fileName);
                     }
                     catch (Exception ex)
                     {
@@ -102,8 +122,7 @@ namespace View
         /// <param name="e">Аргументы события.</param>
         private void BTN_Reset_Click(object sender, EventArgs e)
         {
-            _currentIcon = View.Properties.Resources.No_image;
-            PIC_Game.Image = _currentIcon;
+            PIC_Game.Image = View.Properties.Resources.No_image;
             TB_IconPath.Text = "";
         }
 
@@ -130,8 +149,8 @@ namespace View
                 Name = TB_GameName.Text.Trim(),
                 Developer = TB_Developer.Text.Trim(),
                 Description = RTB_Description.Text.Trim(),
-                Icon = _currentIcon,
-                Screenshots = new List<Image>(_screenshots),
+                Icon = Path.GetFileName(TB_IconPath.Text),
+                Screenshots = new List<string>(_screenshots.Select(f => Path.GetFileName(f)).ToList()),
                 Platforms = new List<Entities.EnumPlatforms>()
             };
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year >= 1925)
@@ -172,8 +191,7 @@ namespace View
             TB_ScreenshotsPath.Text = "";
             CHKLTB_Platform.ClearSelected();
 
-            _currentIcon = View.Properties.Resources.No_image;
-            PIC_Game.Image = _currentIcon;
+            PIC_Game.Image = View.Properties.Resources.No_image;
             _screenshots.Clear();
         }
     }

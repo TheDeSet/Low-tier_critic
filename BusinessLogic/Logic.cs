@@ -97,7 +97,7 @@ namespace BusinessLogic
 
             // Инициализируем списки, если null
             game.Platforms ??= new List<EnumPlatforms>();
-            game.Screenshots ??= new List<Image>();
+            game.Screenshots ??= new List<string>();
             game.Reviews ??= new List<Review>();
 
             

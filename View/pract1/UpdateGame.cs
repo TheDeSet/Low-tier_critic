@@ -34,8 +34,8 @@ namespace View
         }
 
         private Entities.Game _gameToEdit;
-        private Image _currentIcon;
-        private List<Image> _screenshots = new List<Image>();
+        private string _currentIcon;
+        private List<string> _screenshots = new List<string>();
 
         /// <summary>
         /// Загружает данные игры по указанному ID. Если игра не найдена, показывает сообщение об ошибке и закрывает форму.
@@ -65,12 +65,18 @@ namespace View
             RTB_Description.Text = _gameToEdit.Description;
 
             // Иконка
-            _currentIcon = _gameToEdit.Icon ?? View.Properties.Resources.No_image;
-            PIC_Game.Image = _currentIcon;
-            TB_IconPath.Text = "Иконка загружена из данных";
-
+            _currentIcon = _gameToEdit.Icon ?? "";
+            TB_IconPath.Text = string.IsNullOrEmpty(_currentIcon) ? "Нет иконки" : _currentIcon;
+            if (!string.IsNullOrEmpty(_currentIcon))
+            {
+                PIC_Game.Image = ImageLoader.GetImageFromFile(_currentIcon);
+            }
+            else
+            {
+                PIC_Game.Image = Properties.Resources.No_image;
+            }
             // Скриншоты
-            _screenshots = _gameToEdit.Screenshots?.ToList() ?? new List<Image>();
+            _screenshots = _gameToEdit.Screenshots?.ToList() ?? new List<string>();
             TB_ScreenshotsPath.Text = $"{_screenshots.Count} скриншотов";
 
             // Платформы
@@ -97,11 +103,11 @@ namespace View
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
+                _currentIcon = Path.GetFileNameWithoutExtension(dialog.FileName);
+                TB_IconPath.Text = dialog.FileName;
                 try
                 {
-                    _currentIcon = Image.FromFile(dialog.FileName);
-                    PIC_Game.Image = _currentIcon;
-                    TB_IconPath.Text = dialog.FileName;
+                    PIC_Game.Image = Image.FromFile(dialog.FileName);
                 }
                 catch (Exception ex)
                 {
@@ -130,14 +136,7 @@ namespace View
                 _screenshots.Clear();
                 foreach (string file in dialog.FileNames)
                 {
-                    try
-                    {
-                        _screenshots.Add(Image.FromFile(file));
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Не удалось загрузить: {file}\n{ex.Message}", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    _screenshots.Add(Path.GetFileNameWithoutExtension(file));
                 }
                 TB_ScreenshotsPath.Text = $"{_screenshots.Count} файлов";
             }
@@ -150,9 +149,8 @@ namespace View
         /// <param name="e">Аргументы события.</param>
         private void BTN_Reset_Click(object sender, EventArgs e)
         {
-            _currentIcon = View.Properties.Resources.No_image;
-            PIC_Game.Image = _currentIcon;
-            TB_IconPath.Text = "Иконка сброшена";
+            PIC_Game.Image = View.Properties.Resources.No_image;
+            TB_IconPath.Text = "";
         }
 
         /// <summary>
@@ -176,8 +174,8 @@ namespace View
             _gameToEdit.Name = TB_GameName.Text.Trim();
             _gameToEdit.Developer = TB_Developer.Text.Trim();
             _gameToEdit.Description = RTB_Description.Text.Trim();
-            _gameToEdit.Icon = _currentIcon;
-            _gameToEdit.Screenshots = new List<Image>(_screenshots);
+            _gameToEdit.Icon = Path.GetFileName(TB_IconPath.Text);
+            _gameToEdit.Screenshots = new List<string>(_screenshots.Select(f => Path.GetFileName(f)).ToList());
 
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year > 1925)
             {

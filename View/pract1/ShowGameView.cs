@@ -60,8 +60,8 @@ namespace pract1
                 : "Рейтинг: —";
 
 
-            PIC_Game.Image = game.Icon ?? View.Properties.Resources.No_image; // Заглушка
-            
+            PIC_Game.Image = !string.IsNullOrWhiteSpace(game.Icon) ? ImageLoader.GetImageFromFile(game.Icon) : View.Properties.Resources.No_image;
+
 
         }
         /// <summary>

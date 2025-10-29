@@ -10,6 +10,89 @@
 
   <ItemGroup>
     <None Remove="lra1hvrq.qae~" />
+    <None Remove="Pictures\Cyberpunk-2077-1.jpg" />
+    <None Remove="Pictures\Cyberpunk-2077-2.png" />
+    <None Remove="Pictures\Cyberpunk-2077-3.png" />
+    <None Remove="Pictures\Cyberpunk-2077-4.png" />
+    <None Remove="Pictures\guilty-gear-strive-1.jpg" />
+    <None Remove="Pictures\guilty-gear-strive-2.jpg" />
+    <None Remove="Pictures\guilty-gear-strive-3.jpg" />
+    <None Remove="Pictures\Hollow-knight-1.jpeg" />
+    <None Remove="Pictures\Hollow-knight-2.jpg" />
+    <None Remove="Pictures\Hollow-knight-3.png" />
+    <None Remove="Pictures\Hollow-knight-silksong-1.png" />
+    <None Remove="Pictures\Hollow-knight-silksong-2.jpeg" />
+    <None Remove="Pictures\No_image.png" />
+    <None Remove="Pictures\Rating.png" />
+    <None Remove="Pictures\the-witcher-3-wild-1.jpg" />
+    <None Remove="Pictures\the-witcher-3-wild-2.jpg" />
+    <None Remove="Pictures\the-witcher-3-wild-3.jpg" />
+    <None Remove="Pictures\the-witcher-3-wild-4.jpg" />
+    <None Remove="Pictures\the-witcher-3-wild-5.jpg" />
+    <None Remove="Pictures\user.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pictures\Cyberpunk-2077-1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Cyberpunk-2077-2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Cyberpunk-2077-3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Cyberpunk-2077-4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\guilty-gear-strive-1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\guilty-gear-strive-2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\guilty-gear-strive-3.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Hollow-knight-1.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Hollow-knight-2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Hollow-knight-3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Hollow-knight-silksong-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Hollow-knight-silksong-2.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\No_image.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\Rating.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\the-witcher-3-wild-1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\the-witcher-3-wild-2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\the-witcher-3-wild-3.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\the-witcher-3-wild-4.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\the-witcher-3-wild-5.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Pictures\user.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -26,7 +109,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

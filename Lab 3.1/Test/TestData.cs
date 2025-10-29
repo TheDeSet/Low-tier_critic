@@ -13,7 +13,7 @@ namespace Entities.Test
         {
             var games = new List<Game>();
 
-            
+
             var witcher3 = new Game
             {
                 ID = 1,
@@ -23,15 +23,15 @@ namespace Entities.Test
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
                 Rating = 4.8f,
                 Description = "Эпическая RPG по мотивам книг Анджея Сапковского. Игра года 2015.",
-                Icon = LoadImage("the-witcher-3-wild-1.jpg"),
-                Screenshots = new List<Image>
+                Icon = "the-witcher-3-wild-1.jpg",
+                Screenshots = new List<string>
                 {
-                    LoadImage("the-witcher-3-wild-2.jpg"),
-                    LoadImage("the-witcher-3-wild-3.jpg"),
-                    LoadImage("the-witcher-3-wild-4.jpg"),
-                    LoadImage("the-witcher-3-wild-5.jpg")
+                    "the-witcher-3-wild-2.jpg",
+                    "the-witcher-3-wild-3.jpg",
+                    "the-witcher-3-wild-4.jpg",
+                    "the-witcher-3-wild-5.jpg"
                 },
-                Reviews = new List<Review>
+                            Reviews = new List<Review>
                 {
                     new Review { Username = "GamerAlex", Rating = 5.0f, ReviewText = "Шедевр всех времён и народов!" },
                     new Review { Username = "RPG_Fan", Rating = 4.5f, ReviewText = "Огромный мир, но сложный интерфейс." },
@@ -39,7 +39,7 @@ namespace Entities.Test
                 }
             };
 
-            
+
             var cyberpunk = new Game
             {
                 ID = 2,
@@ -49,12 +49,12 @@ namespace Entities.Test
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation5, EnumPlatforms.XboxSeries },
                 Rating = 4.5f,
                 Description = "Футуристический экшен в мире Night City. После патчей игра стала значительно лучше.",
-                Icon = LoadImage("Cyberpunk-2077-1.jpg"),
-                Screenshots = new List<Image>
+                Icon = "Cyberpunk-2077-1.jpg",
+                Screenshots = new List<string>
                 {
-                    LoadImage("Cyberpunk-2077-2.png"),
-                    LoadImage("Cyberpunk-2077-3.png"),
-                    LoadImage("Cyberpunk-2077-4.png")
+                    "Cyberpunk-2077-2.png",
+                    "Cyberpunk-2077-3.png",
+                    "Cyberpunk-2077-4.png"
                 },
                 Reviews = new List<Review>
                 {
@@ -74,11 +74,11 @@ namespace Entities.Test
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
                 Rating = 4.5f,
                 Description = "Метроидвания с потрясающей атмосферой, музыкой и боевой системой.",
-                Icon = LoadImage("Hollow-knight-1.jpeg"),
-                Screenshots = new List<Image>
+                Icon = "Hollow-knight-1.jpeg",
+                Screenshots = new List<string>
                 {
-                    LoadImage("Hollow-knight-2.jpg"),
-                    LoadImage("Hollow-knight-3.png")
+                    "Hollow-knight-2.jpg",
+                    "Hollow-knight-3.png"
                 },
                 Reviews = new List<Review>
                 {
@@ -96,10 +96,10 @@ namespace Entities.Test
                 Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation5, EnumPlatforms.XboxOne, EnumPlatforms.NintendoSwitch },
                 Rating = 4.5f,
                 Description = "Метроидвания с потрясающей атмосферой, музыкой и боевой системой.",
-                Icon = LoadImage("Hollow-knight-silksong-1.png"),
-                Screenshots = new List<Image>
+                Icon = "Hollow-knight-silksong-1.png",
+                Screenshots = new List<string>
                 {
-                    LoadImage("Hollow-knight-silksong-2.jpeg")
+                    "Hollow-knight-silksong-2.jpeg"
                 },
                 Reviews = new List<Review>
                 {
@@ -118,7 +118,7 @@ namespace Entities.Test
                 Rating = null,
                 Description = "test",
                 Icon = null,
-                Screenshots = new List<Image>(),
+                Screenshots = new List<string>(),
                 Reviews = new List<Review>()
             };
             
@@ -129,21 +129,6 @@ namespace Entities.Test
             games.Add(test);
 
             return games;
-        }
-
-        // Вспомогательный метод для загрузки изображений
-        private static Image LoadImage(string fileName)
-        {
-            try
-            {
-                // Путь к изображениям — предполагаем, что они лежат в папке "Images" рядом с .exe
-                string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "D:\\CloneGIT\\Low-tier_critic\\View\\pract1\\Pictures", fileName);
-                return System.IO.File.Exists(path) ? Image.FromFile(path) : Properties.Resources.No_image;
-            }
-            catch
-            {
-                return Properties.Resources.No_image; // заглушка из ресурсов
-            }
         }
     }
 }

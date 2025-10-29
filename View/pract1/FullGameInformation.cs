@@ -82,7 +82,7 @@ namespace View
             LB_Rating.Text = game.Rating.HasValue ? $"{game.Rating:F1}" : "не указан";
             RTB_Description.Text = game.Description ?? "Описание отсутствует.";
 
-            PIC_GameImage.Image = game.Icon ?? View.Properties.Resources.No_image;
+            PIC_GameImage.Image = !string.IsNullOrWhiteSpace(game.Icon) ? ImageLoader.GetImageFromFile(game.Icon) : Properties.Resources.No_image;
 
             // Платформы Игнат добавь label мне лень
             if (game.Platforms != null)
@@ -126,7 +126,14 @@ namespace View
             allScreenshots.Clear();
 
             if (game.Screenshots != null)
-                allScreenshots.AddRange(game.Screenshots);
+            {
+                foreach (string resourceName in game.Screenshots)
+                {
+                    Image img = ImageLoader.GetImageFromFile(resourceName);
+                    if (img != null)
+                        allScreenshots.Add(img);
+                }
+            }
 
             if (allScreenshots.Count > 0)
             {
@@ -169,6 +176,7 @@ namespace View
                 else
                 {
                     HSCB_Thumbnails.Value = 0;
+                    HSCB_Thumbnails.Visible = false;
                     HSCB_Thumbnails.Enabled = false;
                 }
 
@@ -177,6 +185,7 @@ namespace View
             else
             {
                 PIC_GameImage.Image = View.Properties.Resources.No_image;
+                HSCB_Thumbnails.Visible = false;
                 HSCB_Thumbnails.Enabled = false;
             }
         }
