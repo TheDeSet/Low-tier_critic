@@ -4,11 +4,13 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataAccessLayer
@@ -16,6 +18,28 @@ namespace DataAccessLayer
     public class DapperRepository <T> : IRepository<T> where T : IDomainObject
     {
         readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
+
+        private string SerializePlatforms(List<EnumPlatforms> platforms)
+        {
+            string outputString = "";
+            foreach (Enum platform in Enum.GetValues<Entities.EnumPlatforms>())
+            {
+                FieldInfo field = platform.GetType().GetField(platform.ToString());
+                DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+                outputString += $"{attribute.Description}";
+            }
+            return outputString;
+        }
+
+        /*private string SerializeScreenshots(List<Image> images)
+        {
+            string outputString = "";
+            foreach (Image image in images)
+            {
+                
+            }
+            return outputString;
+        }*/
 
         public void Add(T entity)
         {   
@@ -30,7 +54,11 @@ namespace DataAccessLayer
                     "VALUES (@ID, @Name, @Developer, @YearOfRelease, @Platforms, @Rating, @Description, @Icon, @Screenshots)";
                 using IDbConnection connection = new SqliteConnection(ConnectionString);
                 connection.Execute(sqlQuery, game);
-            }  
+            }
+            else if (typeof(T) == typeof(Entities.Review))
+            {
+
+            }
         }
 
         public void Delete(int id)
