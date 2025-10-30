@@ -33,9 +33,9 @@ namespace View
             BTN_Add.Click += BTN_Add_Click;
         }
 
-        private Entities.Game _gameToEdit;
-        private string _currentIcon;
-        private List<string> _screenshots = new List<string>();
+        private Entities.Game gameToEdit;
+        private string currentIcon;
+        private List<string> screenshots = new List<string>();
 
         /// <summary>
         /// Загружает данные игры по указанному ID. Если игра не найдена, показывает сообщение об ошибке и закрывает форму.
@@ -43,8 +43,8 @@ namespace View
         /// <param name="gameId">ID игры для загрузки.</param>
         private void LoadGame(int gameId)
         {
-            _gameToEdit = Logic.GetGameById(gameId);
-            if (_gameToEdit == null)
+            gameToEdit = Logic.GetGameById(gameId);
+            if (gameToEdit == null)
             {
                 MessageBox.Show("Игра не найдена.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
@@ -57,33 +57,33 @@ namespace View
         /// </summary>
         private void PopulateFields()
         {
-            if (_gameToEdit == null) return;
+            if (gameToEdit == null) return;
 
-            TB_GameName.Text = _gameToEdit.Name;
-            TB_Developer.Text = _gameToEdit.Developer;
-            TB_YearOfRelease.Text = _gameToEdit.YearOfRelease?.ToString() ?? "";
-            RTB_Description.Text = _gameToEdit.Description;
+            TB_GameName.Text = gameToEdit.Name;
+            TB_Developer.Text = gameToEdit.Developer;
+            TB_YearOfRelease.Text = gameToEdit.YearOfRelease?.ToString() ?? "";
+            RTB_Description.Text = gameToEdit.Description;
 
             // Иконка
-            _currentIcon = _gameToEdit.Icon ?? "";
-            TB_IconPath.Text = string.IsNullOrEmpty(_currentIcon) ? "Нет иконки" : _currentIcon;
-            if (!string.IsNullOrEmpty(_currentIcon))
+            currentIcon = gameToEdit.Icon ?? "";
+            TB_IconPath.Text = string.IsNullOrEmpty(currentIcon) ? "Нет иконки" : currentIcon;
+            if (!string.IsNullOrEmpty(currentIcon))
             {
-                PIC_Game.Image = ImageLoader.GetImageFromFile(_currentIcon);
+                PIC_Game.Image = ImageLoader.GetImageFromFile(currentIcon);
             }
             else
             {
                 PIC_Game.Image = Properties.Resources.No_image;
             }
             // Скриншоты
-            _screenshots = _gameToEdit.Screenshots?.ToList() ?? new List<string>();
-            TB_ScreenshotsPath.Text = $"{_screenshots.Count} скриншотов";
+            screenshots = gameToEdit.Screenshots?.ToList() ?? new List<string>();
+            TB_ScreenshotsPath.Text = $"{screenshots.Count} скриншотов";
 
             // Платформы
             for (int i = 0; i < CHKLTB_Platform.Items.Count; i++)
             {
                 var platform = (Entities.EnumPlatforms)i;
-                CHKLTB_Platform.SetItemChecked(i, _gameToEdit.Platforms?.Contains(platform) == true);
+                CHKLTB_Platform.SetItemChecked(i, gameToEdit.Platforms?.Contains(platform) == true);
             }
         }
 
@@ -103,7 +103,7 @@ namespace View
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                _currentIcon = Path.GetFileNameWithoutExtension(dialog.FileName);
+                currentIcon = Path.GetFileNameWithoutExtension(dialog.FileName);
                 TB_IconPath.Text = dialog.FileName;
                 try
                 {
@@ -133,12 +133,12 @@ namespace View
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                _screenshots.Clear();
+                screenshots.Clear();
                 foreach (string file in dialog.FileNames)
                 {
-                    _screenshots.Add(Path.GetFileNameWithoutExtension(file));
+                    screenshots.Add(Path.GetFileNameWithoutExtension(file));
                 }
-                TB_ScreenshotsPath.Text = $"{_screenshots.Count} файлов";
+                TB_ScreenshotsPath.Text = $"{screenshots.Count} файлов";
             }
         }
 
@@ -171,15 +171,15 @@ namespace View
                 MessageBox.Show("Введите разработчика.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            _gameToEdit.Name = TB_GameName.Text.Trim();
-            _gameToEdit.Developer = TB_Developer.Text.Trim();
-            _gameToEdit.Description = RTB_Description.Text.Trim();
-            _gameToEdit.Icon = Path.GetFileName(TB_IconPath.Text);
-            _gameToEdit.Screenshots = new List<string>(_screenshots.Select(f => Path.GetFileName(f)).ToList());
+            gameToEdit.Name = TB_GameName.Text.Trim();
+            gameToEdit.Developer = TB_Developer.Text.Trim();
+            gameToEdit.Description = RTB_Description.Text.Trim();
+            gameToEdit.Icon = Path.GetFileName(TB_IconPath.Text);
+            gameToEdit.Screenshots = new List<string>(screenshots.Select(f => Path.GetFileName(f)).ToList());
 
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year > 1925)
             {
-                _gameToEdit.YearOfRelease = year;
+                gameToEdit.YearOfRelease = year;
             }
             else
             {
@@ -188,20 +188,20 @@ namespace View
             }
 
             // Платформы
-            _gameToEdit.Platforms = new List<Entities.EnumPlatforms>();
+            gameToEdit.Platforms = new List<Entities.EnumPlatforms>();
             for (int i = 0; i < CHKLTB_Platform.Items.Count; i++)
             {
                 if (CHKLTB_Platform.GetItemChecked(i))
                 {
-                    _gameToEdit.Platforms.Add((Entities.EnumPlatforms)i);
+                    gameToEdit.Platforms.Add((Entities.EnumPlatforms)i);
                 }
             }
 
-            bool success = Logic.UpdateGame(_gameToEdit);
+            bool success = Logic.UpdateGame(gameToEdit);
 
             if (success)
             {
-                MessageBox.Show($"Игра \"{_gameToEdit.Name}\" успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Игра \"{gameToEdit.Name}\" успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.DialogResult = DialogResult.OK; // для вызывающей формы
                 this.Close();
             }

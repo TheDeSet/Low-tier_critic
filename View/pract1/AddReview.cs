@@ -19,12 +19,12 @@ namespace View
         /// <param name="gameId">ID игры, к которой будет добавлен отзыв.</param>
         public AddReview(int gameId)
         {
-            _gameId = gameId;
+            IdGame = gameId;
             InitializeComponent();
             BTN_Add.Click += BtnAdd_Click;
             BTN_Cancel.Click += (s, e) => this.Close();
         }
-        private int _gameId;
+        private int IdGame;
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки добавления отзыва. Проверяет валидность данных, создает объект отзыва и сохраняет его через логику.
@@ -52,7 +52,7 @@ namespace View
                 ReviewText = RTB_ReviewText.Text.Trim()
             };
 
-            bool success = Logic.AddReviewToGame(_gameId, review);
+            bool success = Logic.AddReviewToGame(IdGame, review);
 
             if (success)
             {

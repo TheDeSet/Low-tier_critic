@@ -1,18 +1,28 @@
 ﻿using Entities;
+using Entities.Test;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Reflection;
-using Entities.Test;
-using System.Drawing;
+using System.Windows.Forms;
 
 namespace BusinessLogic
 {
     public class Logic
     {
+        //Переключатель
+        public static bool useEntityFramework = true;
+        public static void ToggleDataAccessLayer(bool useEF)
+        {
+            if (useEF == false)
+                useEntityFramework = false;
+            else
+                useEntityFramework = true;
+        }
         // Хранилище в памяти. В будущем можно заменить на БД или файл.
         private static List<Game> _games = new List<Game>();
 

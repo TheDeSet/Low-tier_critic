@@ -29,8 +29,8 @@ namespace View
             PIC_Game.Image = View.Properties.Resources.No_image; // заглушка
         }
 
-        private string _currentIcon;
-        private List<string> _screenshots = new List<string>();
+        private string currentIcon;
+        private List<string> screenshots = new List<string>();
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки выбора иконки игры. Открывает диалог OpenFileDialog для выбора файла иконки, 
@@ -49,7 +49,7 @@ namespace View
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                _currentIcon = Path.GetFileNameWithoutExtension(dialog.FileName);
+                currentIcon = Path.GetFileNameWithoutExtension(dialog.FileName);
                 TB_IconPath.Text = dialog.FileName;
                 try
                 {
@@ -64,7 +64,7 @@ namespace View
                     File.Copy(sourceFile, destPath, overwrite: true);
 
                     // Сохраняем только имя файла
-                    _currentIcon = fileName;
+                    currentIcon = fileName;
                     TB_IconPath.Text = fileName;
 
                     // Отображаем
@@ -95,7 +95,7 @@ namespace View
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                _screenshots.Clear();
+                screenshots.Clear();
                 foreach (string file in dialog.FileNames)
                 {
                     try
@@ -104,14 +104,14 @@ namespace View
                         string destPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Pictures", fileName);
 
                         File.Copy(file, destPath, overwrite: true);
-                        _screenshots.Add(fileName);
+                        screenshots.Add(fileName);
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Не удалось загрузить: {file}\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
-                TB_ScreenshotsPath.Text = $"{_screenshots.Count} файлов выбрано";
+                TB_ScreenshotsPath.Text = $"{screenshots.Count} файлов выбрано";
             }
         }
 
@@ -150,7 +150,7 @@ namespace View
                 Developer = TB_Developer.Text.Trim(),
                 Description = RTB_Description.Text.Trim(),
                 Icon = Path.GetFileName(TB_IconPath.Text),
-                Screenshots = new List<string>(_screenshots.Select(f => Path.GetFileName(f)).ToList()),
+                Screenshots = new List<string>(screenshots.Select(f => Path.GetFileName(f)).ToList()),
                 Platforms = new List<Entities.EnumPlatforms>()
             };
             if (int.TryParse(TB_YearOfRelease.Text, out int year) && year >= 1925)
@@ -192,7 +192,7 @@ namespace View
             CHKLTB_Platform.ClearSelected();
 
             PIC_Game.Image = View.Properties.Resources.No_image;
-            _screenshots.Clear();
+            screenshots.Clear();
         }
     }
 }
