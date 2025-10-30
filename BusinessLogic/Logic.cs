@@ -26,7 +26,8 @@ namespace BusinessLogic
         // Хранилище в памяти. В будущем можно заменить на БД или файл.
         private static List<Game> _games = new List<Game>();
 
-        public int DataAccessType = 0; // 0 - Dapper; 1 - EntityFramework
+        static DataAccessLayer.DapperRepository<Game> gamesDapper = new DataAccessLayer.DapperRepository<Game>();
+        static DataAccessLayer.DapperRepository<Review> reviewsDapper = new DataAccessLayer.DapperRepository<Review>();
 
         static Logic()
         {
@@ -40,7 +41,7 @@ namespace BusinessLogic
         /// <returns>Объект Game, если найден; иначе null.</returns>
         public static Game GetGameById(int id)
         {
-            return _games.FirstOrDefault(g => g.ID == id);
+            return gamesDapper.ReadById(id);
         }
 
         /// <summary>
@@ -49,7 +50,7 @@ namespace BusinessLogic
         /// <returns>Список всех игр.</returns>
         public static List<Game> GetGames()
         {
-            return _games;
+            return gamesDapper.ReadAll();
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace BusinessLogic
         /// <returns>Отфильтрованный и отсортированный список игр.</returns>
         public static List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
-            var result = _games.AsEnumerable();
+            var result = gamesDapper.ReadAll().AsEnumerable();
 
             // Фильтрация по поиску
             if (!string.IsNullOrWhiteSpace(searchText))
@@ -112,8 +113,7 @@ namespace BusinessLogic
             game.Screenshots ??= new List<string>();
             game.Reviews ??= new List<Review>();
 
-            
-            _games.Add(game);
+            gamesDapper.Add(game);
         }
 
         /// <summary>
@@ -123,17 +123,18 @@ namespace BusinessLogic
         /// <returns>true, если игра обновлена; иначе false.</returns>
         public static bool UpdateGame(Game updatedGame)
         {
-            var existingGame = _games.FirstOrDefault(g => g.ID == updatedGame.ID);
+            var existingGame = gamesDapper.ReadAll().FirstOrDefault(g => g.ID == updatedGame.ID);
             if (existingGame == null) return false;
 
+            gamesDapper.Update(updatedGame);
             
-            existingGame.Name = updatedGame.Name;
+            /*existingGame.Name = updatedGame.Name;
             existingGame.Developer = updatedGame.Developer;
             existingGame.YearOfRelease = updatedGame.YearOfRelease;
             existingGame.Platforms = updatedGame.Platforms;
             existingGame.Description = updatedGame.Description;
             existingGame.Icon = updatedGame.Icon;
-            existingGame.Screenshots = updatedGame.Screenshots;
+            existingGame.Screenshots = updatedGame.Screenshots;*/
 
             return true;
         }
@@ -145,10 +146,16 @@ namespace BusinessLogic
         /// <returns>true, если игра удалена; иначе false.</returns>
         public static bool DeleteGame(int gameId)
         {
-            var game = _games.FirstOrDefault(g => g.ID == gameId);
+            var game = gamesDapper.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
-            return _games.Remove(game);
+            foreach (Review review in game.Reviews)
+            {
+                reviewsDapper.Delete<Review>(review.ID);
+            }
+            gamesDapper.Delete<Game>(gameId);
+
+            return true;
         }
 
         /// <summary>
@@ -162,7 +169,7 @@ namespace BusinessLogic
         /// <returns>true, если отзыв добавлен; иначе false.</returns>
         public static bool AddReviewToGame(int gameId, Review review)
         {
-            var game = _games.FirstOrDefault(g => g.ID == gameId);
+            var game = gamesDapper.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
             game.Reviews ??= new List<Review>();
@@ -171,7 +178,7 @@ namespace BusinessLogic
 
             review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
 
-            game.Reviews.Add(review);
+            reviewsDapper.Add(review);
 
             if (game.Reviews.Count > 0)
             {

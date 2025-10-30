@@ -68,7 +68,16 @@ namespace ViewConsole
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("1. Выбрать игру из списка\n2. Меню управления списком\n3. Поиск/Сортировка\n4. Сброс сортировки\n5. Выход");
+                string dataAccessType = "";
+                if (BusinessLogic.Logic.useEntityFramework == true)
+                {
+                    dataAccessType = "Entity Framework";
+                }
+                else
+                {
+                    dataAccessType = "Dapper";
+                }
+                Console.WriteLine($"1. Выбрать игру из списка\n2. Меню управления списком\n3. Поиск/Сортировка\n4. Сброс сортировки\n5. Переключить режим Data Access  -  Текущий: {dataAccessType}\n6. Выход");
                 var key = Console.ReadKey(true);
                 switch (key.KeyChar)
                 {
@@ -85,6 +94,16 @@ namespace ViewConsole
                         listOfGames = Logic.GetGames();
                         break;
                     case '5':
+                        if (BusinessLogic.Logic.useEntityFramework == true)
+                        {
+                            BusinessLogic.Logic.ToggleDataAccessLayer(false);
+                        }
+                        else
+                        {
+                            BusinessLogic.Logic.ToggleDataAccessLayer(true);
+                        }
+                        break;
+                    case '6':
                         Environment.Exit(0);
                         break;
                     default:

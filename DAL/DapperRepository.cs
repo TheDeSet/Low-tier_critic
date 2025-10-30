@@ -115,9 +115,6 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 Game game = entity as Game;
-                game.Platforms ??= new List<EnumPlatforms>();
-                game.Screenshots ??= new List<string>();
-                game.Reviews ??= new List<Review>();
                 string sqlQuery = @"INSERT INTO Games (ID, Name, Developer, YearOfRelease, Platforms, Rating, Description, Icon, Screenshots, Reviews) " +
                     "VALUES (@ID, @Name, @Developer, @YearOfRelease, @Platforms, @Rating, @Description, @Icon, @Screenshots, @Reviews)";
                 var parameters = new
@@ -175,7 +172,6 @@ namespace DataAccessLayer
                     "WHERE ID = @ID";
                 var parameters = new
                 {
-                    ID = game.ID,
                     Name = game.Name,
                     Developer = game.Developer,
                     YearOfRelease = game.YearOfRelease,
