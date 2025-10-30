@@ -22,7 +22,7 @@ namespace DataAccessLayer
         {
             _dbSet.Add(entity);
         }
-        public void Delete(int id)
+        public void Delete<T>(int id)
         {
             var entity = _dbSet.Find(id);
             if (entity != null)

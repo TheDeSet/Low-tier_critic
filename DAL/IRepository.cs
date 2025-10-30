@@ -10,7 +10,7 @@ namespace DataAccessLayer
     public interface IRepository<T> where T : IDomainObject
     {
         void Add(T entity);
-        void Delete(int id);
+        void Delete<T>(int id);
         T? ReadById(int id);
         List<T> ReadAll();
         void Update(T entity);

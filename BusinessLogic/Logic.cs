@@ -16,6 +16,8 @@ namespace BusinessLogic
         // Хранилище в памяти. В будущем можно заменить на БД или файл.
         private static List<Game> _games = new List<Game>();
 
+        public int DataAccessType = 0; // 0 - Dapper; 1 - EntityFramework
+
         static Logic()
         {
             _games = TestData.GenerateSampleGames();

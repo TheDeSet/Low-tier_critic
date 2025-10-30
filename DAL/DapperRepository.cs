@@ -9,6 +9,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -19,16 +20,16 @@ namespace DataAccessLayer
     {
         private class GameDTO
         {
-            int ID { get; set; }
-            string Name { get; set; }
-            string Developer { get; set; }
-            int YearOfRelease { get; set; }
-            string Platforms { get; set; }
-            float? Rating { get; set; }
-            string Description { get; set; }
-            string? Icon { get; set; }
-            string? Screenshots { get; set; }
-            string? Reviews { get; set; }
+            public int ID { get; set; }
+            public string Name { get; set; }
+            public string Developer { get; set; }
+            public int YearOfRelease { get; set; }
+            public string Platforms { get; set; }
+            public float? Rating { get; set; }
+            public string Description { get; set; }
+            public string? Icon { get; set; }
+            public string? Screenshots { get; set; }
+            public string? Reviews { get; set; }
         }
 
         readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
@@ -65,7 +66,7 @@ namespace DataAccessLayer
             return outputString;
         }
 
-        private List<T> DeserializePlatform<T>(string platforms) where T : Enum
+        private List<T> DeserializePlatforms<T>(string platforms) where T : Enum
         {
             List<string> descriptions = platforms.Split(';').ToList();
             return descriptions.Select(d =>
@@ -104,7 +105,7 @@ namespace DataAccessLayer
             }
             foreach (int reviewId in reviewsIds)
             {
-                
+                reviews.Add(ReadById(reviewId) as Review);
             }
             return reviews;
         }
@@ -145,11 +146,20 @@ namespace DataAccessLayer
             }
         }
 
-        public void Delete(int id)
+        public void Delete<T>(int id)
         {
-            string sqlQuery = @"DELETE FROM Games WHERE ID = @ID";
-            using IDbConnection connection = new SqliteConnection(ConnectionString);
-            connection.Execute(sqlQuery, new { ID = id });
+            if (typeof(T) == typeof(Entities.Game))
+            {
+                string sqlQuery = @"DELETE FROM Games WHERE ID = @ID";
+                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                connection.Execute(sqlQuery, new { ID = id });
+            }
+            else if (typeof(T) == typeof(Entities.Review))
+            {
+                string sqlQuery = @"DELETE FROM Reviews WHERE ID = @ID";
+                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                connection.Execute(sqlQuery, new { ID = id });
+            }
         }
 
         public void Update(T entity)
@@ -192,7 +202,35 @@ namespace DataAccessLayer
 
         public T? ReadById(int id)
         {
-            return default;
+            if (typeof(T) == typeof(Entities.Game))
+            {
+                string sqlQuery = @"SELECT * FROM Games WHERE ID = @ID";
+                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                GameDTO gameDTO = connection.QueryFirstOrDefault<GameDTO>(sqlQuery, new { ID = id });
+                Game game = new Game();
+                game.ID = gameDTO.ID;
+                game.Name = gameDTO.Name;
+                game.Developer = gameDTO.Developer;
+                game.YearOfRelease = gameDTO.YearOfRelease;
+                game.Platforms = DeserializePlatforms<EnumPlatforms>(gameDTO.Platforms);
+                game.Rating = gameDTO.Rating;
+                game.Description = gameDTO.Description;
+                game.Icon = gameDTO.Icon;
+                game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
+                game.Reviews = DeserializeReviews(gameDTO.Reviews);
+                return (T)(object)game;
+            }
+            else if (typeof(T) == typeof(Entities.Review))
+            {
+                string sqlQuery = @"SELECT * FROM Reviews WHERE ID = @ID";
+                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                Review review = connection.QueryFirstOrDefault<Review>(sqlQuery, new { ID = id });
+                return (T)(object)review;
+            }
+            else
+            {
+                return default;
+            }
         }
 
         public List<T> ReadAll()
@@ -205,7 +243,28 @@ namespace DataAccessLayer
                 List<GameDTO> gamesDTO = connection.Query<GameDTO>(sqlQuery).AsList();
                 foreach (GameDTO gameDTO in gamesDTO)
                 {
-
+                    Game game = new Game();
+                    game.ID = gameDTO.ID;
+                    game.Name = gameDTO.Name;
+                    game.Developer = gameDTO.Developer;
+                    game.YearOfRelease = gameDTO.YearOfRelease;
+                    game.Platforms = DeserializePlatforms<EnumPlatforms>(gameDTO.Platforms);
+                    game.Rating = gameDTO.Rating;
+                    game.Description = gameDTO.Description;
+                    game.Icon = gameDTO.Icon;
+                    game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
+                    game.Reviews = DeserializeReviews(gameDTO.Reviews);
+                    outputList.Add((T)(object)game);
+                }
+            }
+            else if(typeof(T) == typeof(Entities.Review))
+            {
+                string sqlQuery = "SELECT * FROM Reviews ORDER BY ID";
+                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                List<Review> reviews = connection.Query<Review>(sqlQuery).AsList();
+                foreach (Review review in reviews)
+                {
+                    outputList.Add((T)(object)review);
                 }
             }
             return outputList;
