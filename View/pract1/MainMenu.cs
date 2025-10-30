@@ -8,7 +8,31 @@ namespace pract1
         public MainMenu()
         {
             InitializeComponent();
+
+            var result = MessageBox.Show(
+                $"Текущий: 'Entity Framework'.\n\nПереключить на 'Dapper'?",
+                "Подтверждение переключения",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1
+            );
+
+            bool useEF = result switch
+            {
+                DialogResult.Yes => true,
+                DialogResult.No => false,
+                _ => true // Cancel → по умолчанию EF
+            };
+            Logic.ToggleDataAccessLayer(useEF);
+            if (useEF == true)
+                MessageBox.Show("Используется Entity Framework", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            else
+                MessageBox.Show("Используется Dapper", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
+            // Загружаем игры
             LoadGames();
+
             CMB_Filter.SelectedIndex = 0;
             CMB_Sort.SelectedIndex = 0;
             CMB_Sort.SelectedIndexChanged += (s, e) => LoadGames();
