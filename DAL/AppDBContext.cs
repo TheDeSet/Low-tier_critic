@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using Entities;
 
 namespace DataAccessLayer
@@ -15,28 +16,7 @@ namespace DataAccessLayer
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=games.db");
-        }
-
-        // Опционально: настройка отношений между сущностями
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Настройка отношений: одна игра — много отзывов
-            modelBuilder.Entity<Game>()
-                .HasMany(g => g.Reviews)
-                .WithOne()
-                .HasForeignKey("GameId");
-
-            // Опционально: настройка значений по умолчанию
-            modelBuilder.Entity<Game>()
-                .Property(g => g.Name)
-                .HasDefaultValue("Unknown");
-            modelBuilder.Entity<Game>()
-                .Property(g => g.Developer)
-                .HasDefaultValue("Unknown");
-            modelBuilder.Entity<Game>()
-                .Property(g => g.Description)
-                .HasDefaultValue("Empty");
+            optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True");
         }
     }
 }

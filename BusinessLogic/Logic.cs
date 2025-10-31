@@ -36,6 +36,9 @@ namespace BusinessLogic
         static IRepository<Game> GameRepo => useEntityFramework ? gamesEntityFrameWork! : gamesDapper;
         static IRepository<Review> ReviewRepo => useEntityFramework ? reviewEntityFrameWork! : reviewsDapper;
 
+        /// <summary>
+        /// Инициализирует репозиторий EntityFramework
+        /// </summary>
         private static void InitializeEF()
         {
             dbContext = new AppDBContext();
@@ -45,7 +48,7 @@ namespace BusinessLogic
             reviewEntityFrameWork = new EntityRepository<Review>(dbContext);
 
             // Заполняет БД тестовыми данными, если пусто
-            if (gamesEntityFrameWork.ReadAll().Count==0)
+            /*if (gamesEntityFrameWork.ReadAll().Count==0)
             {
                 foreach (var game in _games)
                 {
@@ -82,7 +85,7 @@ namespace BusinessLogic
                     gamesEntityFrameWork.Add(gameCopy);
                 }
                 dbContext.SaveChanges();
-            }
+            }*/
         }
         static Logic()
         {

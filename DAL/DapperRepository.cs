@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Entities;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataAccessLayer
@@ -130,7 +130,7 @@ namespace DataAccessLayer
                     Screenshots = SerializeScreenshots(game.Screenshots),
                     Reviews = SerializeReviews(game.Reviews)
                 };
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, parameters);
             }
             else if (typeof(T) == typeof(Entities.Review))
@@ -138,7 +138,7 @@ namespace DataAccessLayer
                 Review review = entity as Review;
                 string sqlQuery = @"INSERT INTO Reviews (ID, Username, Rating, ReviewText) " +
                     "VALUES (@ID, @Username, @Rating, @ReviewText)";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, review);
             }
         }
@@ -148,13 +148,13 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = @"DELETE FROM Games WHERE ID = @ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, new { ID = id });
             }
             else if (typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = @"DELETE FROM Reviews WHERE ID = @ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, new { ID = id });
             }
         }
@@ -182,7 +182,7 @@ namespace DataAccessLayer
                     Screenshots = SerializeScreenshots(game.Screenshots),
                     Reviews = SerializeReviews(game.Reviews)
                 };
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, parameters);
             }
             else if (typeof(T) == typeof(Entities.Review))
@@ -191,7 +191,7 @@ namespace DataAccessLayer
                 string sqlQuery = @"UPDATE Reviews " +
                     "SET Username = @Username, Rating = @Rating, ReviewText = @ReviewText " +
                     "WHERE ID = @ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, review);
             }
         }
@@ -201,7 +201,7 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = @"SELECT * FROM Games WHERE ID = @ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 GameDTO gameDTO = connection.QueryFirstOrDefault<GameDTO>(sqlQuery, new { ID = id });
                 Game game = new Game();
                 game.ID = gameDTO.ID;
@@ -219,7 +219,7 @@ namespace DataAccessLayer
             else if (typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = @"SELECT * FROM Reviews WHERE ID = @ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 Review review = connection.QueryFirstOrDefault<Review>(sqlQuery, new { ID = id });
                 return (T)(object)review;
             }
@@ -235,7 +235,7 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = "SELECT * FROM Games ORDER BY ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 List<GameDTO> gamesDTO = connection.Query<GameDTO>(sqlQuery).AsList();
                 foreach (GameDTO gameDTO in gamesDTO)
                 {
@@ -256,7 +256,7 @@ namespace DataAccessLayer
             else if(typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = "SELECT * FROM Reviews ORDER BY ID";
-                using IDbConnection connection = new SqliteConnection(ConnectionString);
+                using IDbConnection connection = new SqlConnection(ConnectionString);
                 List<Review> reviews = connection.Query<Review>(sqlQuery).AsList();
                 foreach (Review review in reviews)
                 {
