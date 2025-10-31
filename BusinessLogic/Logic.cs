@@ -1,5 +1,7 @@
-﻿using Entities;
+﻿using DataAccessLayer;
+using Entities;
 using Entities.Test;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,16 +26,75 @@ namespace BusinessLogic
                 useEntityFramework = true;
         }
         // Хранилище в памяти. В будущем можно заменить на БД или файл.
-        private static List<Game> _games = new List<Game>();
+        static List<Game> _games = new List<Game>();
 
+        static AppDBContext? dbContext;
+        static IRepository<Game>? gamesEntityFrameWork;
+        static IRepository<Review>? reviewEntityFrameWork;
         static DataAccessLayer.DapperRepository<Game> gamesDapper = new DataAccessLayer.DapperRepository<Game>();
         static DataAccessLayer.DapperRepository<Review> reviewsDapper = new DataAccessLayer.DapperRepository<Review>();
+        static IRepository<Game> GameRepo => useEntityFramework ? gamesEntityFrameWork! : gamesDapper;
+        static IRepository<Review> ReviewRepo => useEntityFramework ? reviewEntityFrameWork! : reviewsDapper;
 
+        private static void InitializeEF()
+        {
+            dbContext = new AppDBContext();
+            dbContext.Database.EnsureCreated();
+
+            gamesEntityFrameWork = new EntityRepository<Game>(dbContext);
+            reviewEntityFrameWork = new EntityRepository<Review>(dbContext);
+
+            // Заполняет БД тестовыми данными, если пусто
+            if (gamesEntityFrameWork.ReadAll().Count==0)
+            {
+                foreach (var game in _games)
+                {
+
+                    var gameCopy = new Game
+                    {
+                        ID = game.ID,
+                        Name = game.Name,
+                        Developer = game.Developer,
+                        YearOfRelease = game.YearOfRelease,
+                        Platforms = new List<EnumPlatforms>(game.Platforms),
+                        Rating = game.Rating,
+                        Description = game.Description,
+                        Icon = game.Icon,
+                        Screenshots = new List<string>(game.Screenshots),
+                        Reviews = new List<Review>()
+                    };
+
+
+                    foreach (var review in game.Reviews)
+                    {
+                        var reviewCopy = new Review
+                        {
+                            ID = review.ID,
+                            Username = review.Username,
+                            Rating = review.Rating,
+                            ReviewText = review.ReviewText
+                        };
+                        reviewEntityFrameWork.Add(reviewCopy);
+                        reviewEntityFrameWork.GetType().GetMethod("SaveChanges")?.Invoke(reviewEntityFrameWork, null);
+                        gameCopy.Reviews.Add(reviewCopy);
+                    }
+
+                    gamesEntityFrameWork.Add(gameCopy);
+                }
+                dbContext.SaveChanges();
+            }
+        }
         static Logic()
         {
             _games = TestData.GenerateSampleGames();
+            InitializeEF();
         }
-
+        private static void SaveChanges()
+        {
+            if (useEntityFramework)
+                dbContext!.SaveChanges();
+            // Dapper сохраняет сразу 
+        }
         /// <summary>
         /// Получает игру по указанному ID.
         /// </summary>
@@ -41,7 +102,7 @@ namespace BusinessLogic
         /// <returns>Объект Game, если найден; иначе null.</returns>
         public static Game GetGameById(int id)
         {
-            return gamesDapper.ReadById(id);
+            return GameRepo.ReadById(id);
         }
 
         /// <summary>
@@ -50,7 +111,7 @@ namespace BusinessLogic
         /// <returns>Список всех игр.</returns>
         public static List<Game> GetGames()
         {
-            return gamesDapper.ReadAll();
+            return GameRepo.ReadAll();
         }
 
         /// <summary>
@@ -62,7 +123,8 @@ namespace BusinessLogic
         /// <returns>Отфильтрованный и отсортированный список игр.</returns>
         public static List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
-            var result = gamesDapper.ReadAll().AsEnumerable();
+            var result = GameRepo.ReadAll().AsEnumerable();
+
 
             // Фильтрация по поиску
             if (!string.IsNullOrWhiteSpace(searchText))
@@ -113,7 +175,8 @@ namespace BusinessLogic
             game.Screenshots ??= new List<string>();
             game.Reviews ??= new List<Review>();
 
-            gamesDapper.Add(game);
+            GameRepo.Add(game);
+            SaveChanges();
         }
 
         /// <summary>
@@ -123,11 +186,11 @@ namespace BusinessLogic
         /// <returns>true, если игра обновлена; иначе false.</returns>
         public static bool UpdateGame(Game updatedGame)
         {
-            var existingGame = gamesDapper.ReadAll().FirstOrDefault(g => g.ID == updatedGame.ID);
+            var existingGame = GameRepo.ReadAll().FirstOrDefault(g => g.ID == updatedGame.ID);
             if (existingGame == null) return false;
 
-            gamesDapper.Update(updatedGame);
-            
+            GameRepo.Update(updatedGame);
+
             /*existingGame.Name = updatedGame.Name;
             existingGame.Developer = updatedGame.Developer;
             existingGame.YearOfRelease = updatedGame.YearOfRelease;
@@ -135,7 +198,7 @@ namespace BusinessLogic
             existingGame.Description = updatedGame.Description;
             existingGame.Icon = updatedGame.Icon;
             existingGame.Screenshots = updatedGame.Screenshots;*/
-
+            SaveChanges();
             return true;
         }
 
@@ -146,15 +209,15 @@ namespace BusinessLogic
         /// <returns>true, если игра удалена; иначе false.</returns>
         public static bool DeleteGame(int gameId)
         {
-            var game = gamesDapper.ReadAll().FirstOrDefault(g => g.ID == gameId);
+            var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
             foreach (Review review in game.Reviews)
             {
                 reviewsDapper.Delete<Review>(review.ID);
             }
-            gamesDapper.Delete<Game>(gameId);
-
+            GameRepo.Delete<Game>(gameId);
+            SaveChanges();
             return true;
         }
 
@@ -169,7 +232,7 @@ namespace BusinessLogic
         /// <returns>true, если отзыв добавлен; иначе false.</returns>
         public static bool AddReviewToGame(int gameId, Review review)
         {
-            var game = gamesDapper.ReadAll().FirstOrDefault(g => g.ID == gameId);
+            var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
             game.Reviews ??= new List<Review>();
@@ -178,11 +241,14 @@ namespace BusinessLogic
 
             review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
 
-            reviewsDapper.Add(review);
+            ReviewRepo.Add(review);
+            SaveChanges();
 
             if (game.Reviews.Count > 0)
             {
                 game.Rating = game.Reviews.Average(r => r.Rating);
+                GameRepo.Update(game);
+                SaveChanges();
             }
 
             return true;

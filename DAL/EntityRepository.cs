@@ -42,11 +42,5 @@ namespace DataAccessLayer
             dbSet.Attach(entity);
             dataBaseContext.Entry(entity).State = EntityState.Modified;
         }
-        public void SaveChanges()
-        {
-            dataBaseContext.SaveChanges(); 
-        }
-
-
     }
 }
