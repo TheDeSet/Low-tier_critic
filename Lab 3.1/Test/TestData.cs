@@ -31,7 +31,7 @@ namespace Entities.Test
                     "the-witcher-3-wild-4.jpg",
                     "the-witcher-3-wild-5.jpg"
                 },
-                            Reviews = new List<Review>
+                Reviews = new List<Review>
                 {
                     new Review { Username = "GamerAlex", Rating = 5.0f, ReviewText = "Шедевр всех времён и народов!" },
                     new Review { Username = "RPG_Fan", Rating = 4.5f, ReviewText = "Огромный мир, но сложный интерфейс." },
@@ -108,7 +108,7 @@ namespace Entities.Test
                 }
             };
 
-            var test = new Game
+/*            var test = new Game
             {
                 ID = 5,
                 Name = "test",
@@ -120,13 +120,13 @@ namespace Entities.Test
                 Icon = null,
                 Screenshots = new List<string>(),
                 Reviews = new List<Review>()
-            };
+            };*/
             
             games.Add(witcher3);
             games.Add(cyberpunk);
             games.Add(hollowKnight);
             games.Add(hollowKnight_silksong);
-            games.Add(test);
+            //games.Add(test);
 
             return games;
         }

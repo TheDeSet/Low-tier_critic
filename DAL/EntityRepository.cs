@@ -30,6 +30,12 @@ namespace DataAccessLayer
         }
         public T? ReadById(int id)
         {
+            if (typeof(T) == typeof(Game))
+            {
+                return dbSet
+                    .Include("Reviews") 
+                    .FirstOrDefault(e => ((IDomainObject)e).ID == id) as T;
+            }
             return dbSet.Find(id);
         }
         public List<T> ReadAll()

@@ -20,10 +20,10 @@ namespace BusinessLogic
         public static bool useEntityFramework = true;
         public static void ToggleDataAccessLayer(bool useEF)
         {
+            if (useEF == true)
+                useEntityFramework = true;
             if (useEF == false)
                 useEntityFramework = false;
-            else
-                useEntityFramework = true;
         }
         // Хранилище в памяти. В будущем можно заменить на БД или файл.
         static List<Game> _games = new List<Game>();
@@ -241,6 +241,7 @@ namespace BusinessLogic
 
             review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
 
+            game.Reviews.Add(review);
             ReviewRepo.Add(review);
             SaveChanges();
 

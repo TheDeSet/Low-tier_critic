@@ -75,7 +75,6 @@ namespace View
                 this.Close();
                 return;
             }
-
             LB_GameName.Text = game.Name;
             LB_Developer.Text = $"{game.Developer}";
             LB_YearOfRelease.Text = game.YearOfRelease.HasValue ? $"{game.YearOfRelease}" : "не указан";

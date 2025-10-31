@@ -10,7 +10,7 @@ namespace pract1
             InitializeComponent();
 
             var result = MessageBox.Show(
-                $"Текущий: 'Entity Framework'.\n\nПереключить на 'Dapper'?",
+                $"Текущий: 'Entity Framework'.\n\nОставить как есть?",
                 "Подтверждение переключения",
                 MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Question,
@@ -26,7 +26,7 @@ namespace pract1
             Logic.ToggleDataAccessLayer(useEF);
             if (useEF == true)
                 MessageBox.Show("Используется Entity Framework", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            else
+            if(useEF == false)
                 MessageBox.Show("Используется Dapper", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 
