@@ -25,8 +25,6 @@ namespace BusinessLogic
             if (useEF == false)
                 useEntityFramework = false;
         }
-        // Хранилище в памяти. В будущем можно заменить на БД или файл.
-        static List<Game> _games = new List<Game>();
 
         static AppDBContext? dbContext;
         static IRepository<Game>? gamesEntityFrameWork;
@@ -46,57 +44,16 @@ namespace BusinessLogic
 
             gamesEntityFrameWork = new EntityRepository<Game>(dbContext);
             reviewEntityFrameWork = new EntityRepository<Review>(dbContext);
-
-            // Заполняет БД тестовыми данными, если пусто
-            /*if (gamesEntityFrameWork.ReadAll().Count==0)
-            {
-                foreach (var game in _games)
-                {
-
-                    var gameCopy = new Game
-                    {
-                        ID = game.ID,
-                        Name = game.Name,
-                        Developer = game.Developer,
-                        YearOfRelease = game.YearOfRelease,
-                        Platforms = new List<EnumPlatforms>(game.Platforms),
-                        Rating = game.Rating,
-                        Description = game.Description,
-                        Icon = game.Icon,
-                        Screenshots = new List<string>(game.Screenshots),
-                        Reviews = new List<Review>()
-                    };
-
-
-                    foreach (var review in game.Reviews)
-                    {
-                        var reviewCopy = new Review
-                        {
-                            ID = review.ID,
-                            Username = review.Username,
-                            Rating = review.Rating,
-                            ReviewText = review.ReviewText
-                        };
-                        reviewEntityFrameWork.Add(reviewCopy);
-                        reviewEntityFrameWork.GetType().GetMethod("SaveChanges")?.Invoke(reviewEntityFrameWork, null);
-                        gameCopy.Reviews.Add(reviewCopy);
-                    }
-
-                    gamesEntityFrameWork.Add(gameCopy);
-                }
-                dbContext.SaveChanges();
-            }*/
         }
         static Logic()
         {
-            _games = TestData.GenerateSampleGames();
             InitializeEF();
         }
         private static void SaveChanges()
         {
             if (useEntityFramework)
                 dbContext!.SaveChanges();
-            // Dapper сохраняет сразу 
+            
         }
         /// <summary>
         /// Получает игру по указанному ID.
@@ -170,9 +127,6 @@ namespace BusinessLogic
         /// </remarks>
         public static void AddGame(Game game)
         {
-            // Автоматически назначаем ID
-            game.ID = _games.Count > 0 ? _games.Max(g => g.ID) + 1 : 1;
-
             // Инициализируем списки, если null
             game.Platforms ??= new List<EnumPlatforms>();
             game.Screenshots ??= new List<string>();
@@ -215,9 +169,12 @@ namespace BusinessLogic
             var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
-            foreach (Review review in game.Reviews)
+            if (game.Reviews != null)
             {
-                reviewsDapper.Delete<Review>(review.ID);
+                foreach (Review review in game.Reviews)
+                {
+                    ReviewRepo.Delete<Review>(review.ID);
+                }
             }
             GameRepo.Delete<Game>(gameId);
             SaveChanges();
@@ -243,7 +200,7 @@ namespace BusinessLogic
             review.Username = string.IsNullOrWhiteSpace(review.Username) ? "Аноним" : review.Username.Trim();
 
             review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
-
+            dbContext.Entry(review).Property("GameId").CurrentValue = gameId;
             game.Reviews.Add(review);
             ReviewRepo.Add(review);
             SaveChanges();

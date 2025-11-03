@@ -32,18 +32,19 @@ namespace DataAccessLayer
             public string? Reviews { get; set; }
         }
 
-        readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
+        readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
 
         private string SerializePlatforms(List<EnumPlatforms> platforms)
         {
-            string outputString = "";
+            return string.Join(",", platforms.Select(p => (int)p));
+            /*string outputString = "";
             foreach (Enum platform in Enum.GetValues<Entities.EnumPlatforms>())
             {
                 FieldInfo field = platform.GetType().GetField(platform.ToString());
                 DescriptionAttribute attribute = field?.GetCustomAttribute<DescriptionAttribute>();
                 outputString += $"{attribute.Description};";
             }
-            return outputString;
+            return outputString;*/
         }
 
         private string SerializeScreenshots(List<string> images)
@@ -58,17 +59,47 @@ namespace DataAccessLayer
 
         private string SerializeReviews(List<Review> reviews)
         {
-            string outputString = "";
+            return string.Join(";", reviews.Select(r => r.ID));
+            /*string outputString = "";
             foreach (Review review in reviews)
             {
                 outputString += $"{review.ID};";
             }
-            return outputString;
+            return outputString;*/
         }
 
         private List<T> DeserializePlatforms<T>(string platforms) where T : Enum
         {
-            List<string> descriptions = platforms.Split(';').ToList();
+            var descriptions = platforms.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+            var result = new List<T>();
+            foreach (string description in descriptions)
+            {
+                if (int.TryParse(description, out int enumValue))
+                {
+                    try
+                    {
+                        T enumT = (T)(object)enumValue;
+                        if (Enum.IsDefined(typeof(T), enumT))
+                        {
+                            result.Add(enumT);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Неизвестное значение платформы: {enumValue}");
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"Не удалось преобразовать значение платформы: {description}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Не удалось распознать значение платформы: '{description}'");
+                }
+            }
+            return result;
+            /*List<string> descriptions = platforms.Split(';').ToList();
             return descriptions.Select(d =>
                 Enum.GetValues(typeof(T))
                     .Cast<T>()
@@ -76,7 +107,7 @@ namespace DataAccessLayer
                         (typeof(T).GetField(c.ToString())?.GetCustomAttribute<DescriptionAttribute>()?.Description == d)
                         || c.ToString() == d
                     )
-            ).ToList();
+            ).ToList();*/
         }
 
         private List<string> DeserializeScreenshots(string screenshotsString)
@@ -115,11 +146,11 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 Game game = entity as Game;
-                string sqlQuery = @"INSERT INTO Games (ID, Name, Developer, YearOfRelease, Platforms, Rating, Description, Icon, Screenshots, Reviews) " +
-                    "VALUES (@ID, @Name, @Developer, @YearOfRelease, @Platforms, @Rating, @Description, @Icon, @Screenshots, @Reviews)";
+                string sqlQuery = @"INSERT INTO Games (Name, Developer, YearOfRelease, Platforms, Rating, Description, Icon, Screenshots) " +
+                    "VALUES (@Name, @Developer, @YearOfRelease, @Platforms, @Rating, @Description, @Icon, @Screenshots)";
                 var parameters = new
                 {
-                    ID = game.ID,
+                    //ID = game.ID,
                     Name = game.Name,
                     Developer = game.Developer,
                     YearOfRelease = game.YearOfRelease,
@@ -128,7 +159,7 @@ namespace DataAccessLayer
                     Description = game.Description,
                     Icon = game.Icon,
                     Screenshots = SerializeScreenshots(game.Screenshots),
-                    Reviews = SerializeReviews(game.Reviews)
+                    //Reviews = SerializeReviews(game.Reviews)
                 };
                 using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, parameters);
@@ -136,8 +167,8 @@ namespace DataAccessLayer
             else if (typeof(T) == typeof(Entities.Review))
             {
                 Review review = entity as Review;
-                string sqlQuery = @"INSERT INTO Reviews (ID, Username, Rating, ReviewText) " +
-                    "VALUES (@ID, @Username, @Rating, @ReviewText)";
+                string sqlQuery = @"INSERT INTO Reviews (Username, Rating, ReviewText, GameId) " +
+                    "VALUES (@Username, @Rating, @ReviewText, @GameId)";
                 using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, review);
             }
@@ -166,12 +197,13 @@ namespace DataAccessLayer
                 Game game = entity as Game;
                 game.Platforms ??= new List<EnumPlatforms>();
                 game.Screenshots ??= new List<string>();
-                game.Reviews ??= new List<Review>();
-                string sqlQuery = @"UPDATE Games" +
-                    "SET Name = @Name, Developer = @Developer, YearOfRelease = @YearOfRelease, Platforms = @Platforms, Rating = @Rating, Description = @Description, Icon = @Icon, Screenshots = @Screenshots, Reviews = @Reviews " +
+                //game.Reviews ??= new List<Review>();
+                string sqlQuery = @"UPDATE Games " + 
+                    "SET Name = @Name, Developer = @Developer, YearOfRelease = @YearOfRelease, Platforms = @Platforms, Rating = @Rating, Description = @Description, Icon = @Icon, Screenshots = @Screenshots " +
                     "WHERE ID = @ID";
                 var parameters = new
                 {
+                    ID = game.ID,
                     Name = game.Name,
                     Developer = game.Developer,
                     YearOfRelease = game.YearOfRelease,
@@ -180,7 +212,7 @@ namespace DataAccessLayer
                     Description = game.Description,
                     Icon = game.Icon,
                     Screenshots = SerializeScreenshots(game.Screenshots),
-                    Reviews = SerializeReviews(game.Reviews)
+                    //Reviews = SerializeReviews(game.Reviews)
                 };
                 using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, parameters);
@@ -189,7 +221,7 @@ namespace DataAccessLayer
             {
                 Review review = entity as Review;
                 string sqlQuery = @"UPDATE Reviews " +
-                    "SET Username = @Username, Rating = @Rating, ReviewText = @ReviewText " +
+                    "SET Username = @Username, Rating = @Rating, ReviewText = @ReviewText, GameId = @GameId" +
                     "WHERE ID = @ID";
                 using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, review);
@@ -213,7 +245,11 @@ namespace DataAccessLayer
                 game.Description = gameDTO.Description;
                 game.Icon = gameDTO.Icon;
                 game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
-                game.Reviews = DeserializeReviews(gameDTO.Reviews);
+                //game.Reviews = DeserializeReviews(gameDTO.Reviews);
+
+                string reviewsQuery = @"SELECT * FROM Reviews WHERE GameId = @GameId";
+                List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }).AsList();
+                game.Reviews = reviews ?? new List<Review>();
                 return (T)(object)game;
             }
             else if (typeof(T) == typeof(Entities.Review))
@@ -249,7 +285,11 @@ namespace DataAccessLayer
                     game.Description = gameDTO.Description;
                     game.Icon = gameDTO.Icon;
                     game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
-                    game.Reviews = DeserializeReviews(gameDTO.Reviews);
+                    //game.Reviews = DeserializeReviews(gameDTO.Reviews);
+                    
+                    string reviewsQuery = @"SELECT * FROM Reviews WHERE GameId = @GameId";
+                    List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }).AsList();
+                    game.Reviews = reviews ?? new List<Review>();
                     outputList.Add((T)(object)game);
                 }
             }

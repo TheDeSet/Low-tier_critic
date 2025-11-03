@@ -12,5 +12,6 @@ namespace Entities
         public string? Username { get; set; }
         public float Rating { get; set; }
         public string ReviewText { get; set; } = "Empty";
+        public int GameId { get; set; }
     }
 }

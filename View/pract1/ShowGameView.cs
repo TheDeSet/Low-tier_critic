@@ -109,11 +109,15 @@ namespace pract1
             if (GameData?.ID > 0)
             {
                 var detailsForm = new FullGameInformation(GameData.ID);
+                detailsForm.ShowDialog();
                 detailsForm.FormClosed += (s, args) =>
                 {
                     GameUpdated?.Invoke(this, EventArgs.Empty);
                 };
-                detailsForm.ShowDialog();
+            }
+            else 
+            {
+                MessageBox.Show("Игра не найдена.");
             }
         }
     }

@@ -172,6 +172,7 @@ namespace pract1
             }
 
             UpdateGame UpdGame = new UpdateGame(selectedTile.GameData.ID);
+
             if (UpdGame.ShowDialog() == DialogResult.OK)
             {
                 LoadGames();

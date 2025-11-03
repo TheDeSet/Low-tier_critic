@@ -72,7 +72,6 @@ namespace View
             if (game == null)
             {
                 MessageBox.Show("Игра не найдена.");
-                this.Close();
                 return;
             }
             LB_GameName.Text = game.Name;

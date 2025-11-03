@@ -33,8 +33,8 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Game))
             {
                 return dbSet
-                    .Include("Reviews") 
-                    .FirstOrDefault(e => ((IDomainObject)e).ID == id) as T;
+                        .Include("Reviews")
+                        .FirstOrDefault(e => ((IDomainObject)e).ID == id) as T;
             }
             return dbSet.Find(id);
         }
