@@ -18,6 +18,10 @@ namespace BusinessLogic
     {
         //Переключатель
         public static bool useEntityFramework = true;
+        /// <summary>
+        /// Переключает используемый слой доступа к данным между Entity Framework и Dapper.
+        /// </summary>
+        /// <param name="useEF">Если true, использует Entity Framework; если false, использует Dapper.</param>
         public static void ToggleDataAccessLayer(bool useEF)
         {
             if (useEF == true)
@@ -147,14 +151,6 @@ namespace BusinessLogic
             if (existingGame == null) return false;
 
             GameRepo.Update(updatedGame);
-
-            /*existingGame.Name = updatedGame.Name;
-            existingGame.Developer = updatedGame.Developer;
-            existingGame.YearOfRelease = updatedGame.YearOfRelease;
-            existingGame.Platforms = updatedGame.Platforms;
-            existingGame.Description = updatedGame.Description;
-            existingGame.Icon = updatedGame.Icon;
-            existingGame.Screenshots = updatedGame.Screenshots;*/
             SaveChanges();
             return true;
         }
