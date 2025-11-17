@@ -18,23 +18,39 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace DataAccessLayer
 {  
     public class GameDTO
-        {
-            public int ID { get; set; }
-            public string Name { get; set; }
-            public string Developer { get; set; }
-            public int YearOfRelease { get; set; }
-            public string Platforms { get; set; }
-            public float? Rating { get; set; }
-            public string Description { get; set; }
-            public string? Icon { get; set; }
-            public string? Screenshots { get; set; }
-            public string? Reviews { get; set; }
-        }
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Developer { get; set; }
+        public int YearOfRelease { get; set; }
+        public string Platforms { get; set; }
+        public float? Rating { get; set; }
+        public string Description { get; set; }
+        public string? Icon { get; set; }
+        public string? Screenshots { get; set; }
+        public string? Reviews { get; set; }
+    }
+
     public class DapperRepository <T> : IRepository<T> where T : IDomainObject
     {
-      
+        private readonly IDbConnection connection;
+        private readonly IDbTransaction? transaction;
 
-        readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
+        // Конструктор для использования вне UoW (самостоятельно открывает соединение)
+        public DapperRepository()
+        {
+            connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True");
+            transaction = null;
+        }
+
+        // Конструктор для использования внутри UoW (получает соединение и транзакцию)
+        public DapperRepository(IDbConnection connection, IDbTransaction? transaction)
+        {
+            this.connection = connection;
+            this.transaction = transaction;
+        }
+
+        //readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
 
         /// <summary>
         /// Сериализует список EnumPlatforms в строку, разделённую запятыми.
@@ -43,7 +59,7 @@ namespace DataAccessLayer
         /// <returns>Строка, представляющая список платформ.</returns>
         private string SerializePlatforms(List<EnumPlatforms> platforms)
         {
-            return string.Join(",", platforms.Select(p => (int)p));
+            return JsonSerializer.Serialize(platforms, new JsonSerializerOptions { WriteIndented = false });
         }
 
         /// <summary>
@@ -57,38 +73,21 @@ namespace DataAccessLayer
         }
 
         /// <summary>
-        /// Сериализует список ID отзывов в строку, разделённую точкой с запятой.
-        /// </summary>
-        /// <param name="reviews">Список отзывов для сериализации.</param>
-        /// <returns>Строка, содержащая ID отзывов, разделённые точкой с запятой.</returns>
-        private string SerializeReviews(List<Review> reviews)
-        {
-            return string.Join(";", reviews.Select(r => r.ID));
-        }
-
-        /// <summary>
         /// Десериализует строку, представляющую список значений Enum, в список T.
         /// </summary>
         /// <typeparam name="T">Тип перечисления.</typeparam>
         /// <param name="platforms">Строка, содержащая значения перечисления.</param>
         /// <returns>Список значений перечисления типа T.</returns>
-        private List<T> DeserializePlatforms<T>(string platforms) where T : Enum
+        private List<EnumPlatforms> DeserializePlatforms(string platforms)
         {
-            var descriptions = platforms.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
-            var result = new List<T>();
-            foreach (string description in descriptions)
-            {
-                if (int.TryParse(description, out int enumValue))
-                {
-                    T enumT = (T)(object)enumValue;
-                    if (Enum.IsDefined(typeof(T), enumT))
-                    {
-                        result.Add(enumT);
-                    }
-                }
-                    
-            }
-            return result;
+            var platformInts = JsonSerializer.Deserialize<List<int>>(platforms);
+            if (platformInts == null)
+                return new List<EnumPlatforms>();
+
+            return platformInts
+                .Where(i => Enum.IsDefined(typeof(EnumPlatforms), i))
+                .Select(i => (EnumPlatforms)i)
+                .ToList();
         }
 
         /// <summary>
@@ -104,30 +103,6 @@ namespace DataAccessLayer
             }
             var list = JsonSerializer.Deserialize<List<string>>(screenshotsString);
             return list ?? new List<string>();
-        }
-
-        /// <summary>
-        /// Десериализует строку, содержащую ID отзывов, в список объектов Review.
-        /// </summary>
-        /// <param name="reviewsString">Строка, содержащая ID отзывов, разделённые точкой с запятой.</param>
-        /// <returns>Список объектов Review.</returns>
-        private List<Review> DeserializeReviews(string reviewsString)
-        {
-            List<Review> reviews = new List<Review>();
-            List<string> reviewsIdsStrings = reviewsString.Split(";").ToList();
-            List<int> reviewsIds = new List<int>();
-            foreach (string reviewId in reviewsIdsStrings)
-            {
-                if (int.TryParse(reviewId, out int id))
-                {
-                    reviewsIds.Add(id);
-                }
-            }
-            foreach (int reviewId in reviewsIds)
-            {
-                reviews.Add(ReadById(reviewId) as Review);
-            }
-            return reviews;
         }
 
         public void Add(T entity)
@@ -148,16 +123,16 @@ namespace DataAccessLayer
                     Icon = game.Icon,
                     Screenshots = SerializeScreenshots(game.Screenshots),
                 };
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, parameters);
+                /*using IDbConnection connection = new SqlConnection(ConnectionString);*/
+                connection.Execute(sqlQuery, parameters, transaction);
             }
             else if (typeof(T) == typeof(Entities.Review))
             {
                 Review review = entity as Review;
                 string sqlQuery = @"INSERT INTO Reviews (Username, Rating, ReviewText, GameId) " +
                     "VALUES (@Username, @Rating, @ReviewText, @GameId)";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, review);
+                /*using IDbConnection connection = new SqlConnection(ConnectionString);*/
+                connection.Execute(sqlQuery, review, transaction);
             }
         }
 
@@ -165,15 +140,22 @@ namespace DataAccessLayer
         {
             if (typeof(T) == typeof(Entities.Game))
             {
-                string sqlQuery = @"DELETE FROM Games WHERE ID = @ID";
+                /*string sqlQuery = @"DELETE FROM Games WHERE ID = @ID";
                 using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, new { ID = id });
+                connection.Execute(sqlQuery, new { ID = id });*/
+                
+                // Удаляем отзывы, связанные с игрой
+                connection.Execute("DELETE FROM Reviews WHERE GameId = @ID", new { ID = id }, transaction);
+                // Удаляем саму игру
+                connection.Execute("DELETE FROM Games WHERE ID = @ID", new { ID = id }, transaction);
             }
             else if (typeof(T) == typeof(Entities.Review))
             {
-                string sqlQuery = @"DELETE FROM Reviews WHERE ID = @ID";
+                /*string sqlQuery = @"DELETE FROM Reviews WHERE ID = @ID";
                 using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, new { ID = id });
+                connection.Execute(sqlQuery, new { ID = id });*/
+
+                connection.Execute("DELETE FROM Reviews WHERE ID = @ID", new { ID = id }, transaction);
             }
         }
 
@@ -199,8 +181,8 @@ namespace DataAccessLayer
                     Icon = game.Icon,
                     Screenshots = SerializeScreenshots(game.Screenshots),
                 };
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, parameters);
+                //using IDbConnection connection = new SqlConnection(ConnectionString);
+                connection.Execute(sqlQuery, parameters, transaction);
             }
             else if (typeof(T) == typeof(Entities.Review))
             {
@@ -208,8 +190,8 @@ namespace DataAccessLayer
                 string sqlQuery = @"UPDATE Reviews " +
                     "SET Username = @Username, Rating = @Rating, ReviewText = @ReviewText, GameId = @GameId" +
                     "WHERE ID = @ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, review);
+                //using IDbConnection connection = new SqlConnection(ConnectionString);
+                connection.Execute(sqlQuery, review, transaction);
             }
         }
 
@@ -218,29 +200,30 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = @"SELECT * FROM Games WHERE ID = @ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                GameDTO gameDTO = connection.QueryFirstOrDefault<GameDTO>(sqlQuery, new { ID = id });
+                //using IDbConnection connection = new SqlConnection(ConnectionString);
+                GameDTO gameDTO = connection.QueryFirstOrDefault<GameDTO>(sqlQuery, new { ID = id }, transaction);
                 Game game = new Game();
                 game.ID = gameDTO.ID;
                 game.Name = gameDTO.Name;
                 game.Developer = gameDTO.Developer;
                 game.YearOfRelease = gameDTO.YearOfRelease;
-                game.Platforms = DeserializePlatforms<EnumPlatforms>(gameDTO.Platforms);
+                game.Platforms = DeserializePlatforms(gameDTO.Platforms);
                 game.Rating = gameDTO.Rating;
                 game.Description = gameDTO.Description;
                 game.Icon = gameDTO.Icon;
                 game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
 
                 string reviewsQuery = @"SELECT * FROM Reviews WHERE GameId = @GameId";
-                List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }).AsList();
+                List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }, transaction).AsList();
                 game.Reviews = reviews ?? new List<Review>();
+
                 return (T)(object)game;
             }
             else if (typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = @"SELECT * FROM Reviews WHERE ID = @ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                Review review = connection.QueryFirstOrDefault<Review>(sqlQuery, new { ID = id });
+                //using IDbConnection connection = new SqlConnection(ConnectionString);
+                Review review = connection.QueryFirstOrDefault<Review>(sqlQuery, new { ID = id }, transaction);
                 return (T)(object)review;
             }
             else
@@ -255,8 +238,8 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = "SELECT * FROM Games ORDER BY ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                List<GameDTO> gamesDTO = connection.Query<GameDTO>(sqlQuery).AsList();
+                //using IDbConnection connection = new SqlConnection(ConnectionString);
+                List<GameDTO> gamesDTO = connection.Query<GameDTO>(sqlQuery, transaction:transaction).AsList();
                 foreach (GameDTO gameDTO in gamesDTO)
                 {
                     Game game = new Game();
@@ -264,14 +247,14 @@ namespace DataAccessLayer
                     game.Name = gameDTO.Name;
                     game.Developer = gameDTO.Developer;
                     game.YearOfRelease = gameDTO.YearOfRelease;
-                    game.Platforms = DeserializePlatforms<EnumPlatforms>(gameDTO.Platforms);
+                    game.Platforms = DeserializePlatforms(gameDTO.Platforms);
                     game.Rating = gameDTO.Rating;
                     game.Description = gameDTO.Description;
                     game.Icon = gameDTO.Icon;
                     game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
                     
                     string reviewsQuery = @"SELECT * FROM Reviews WHERE GameId = @GameId";
-                    List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }).AsList();
+                    List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }, transaction).AsList();
                     game.Reviews = reviews ?? new List<Review>();
                     outputList.Add((T)(object)game);
                 }
@@ -279,8 +262,8 @@ namespace DataAccessLayer
             else if(typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = "SELECT * FROM Reviews ORDER BY ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                List<Review> reviews = connection.Query<Review>(sqlQuery).AsList();
+                //using IDbConnection connection = new SqlConnection(ConnectionString);
+                List<Review> reviews = connection.Query<Review>(sqlQuery, transaction: transaction).AsList();
                 foreach (Review review in reviews)
                 {
                     outputList.Add((T)(object)review);

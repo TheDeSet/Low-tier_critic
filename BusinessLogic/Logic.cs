@@ -24,13 +24,15 @@ namespace BusinessLogic
         /// <param name="useEF">Если true, использует Entity Framework; если false, использует Dapper.</param>
         public static void ToggleDataAccessLayer(bool useEF)
         {
-            if (useEF == true)
+            /*if (useEF == true)
                 useEntityFramework = true;
             if (useEF == false)
-                useEntityFramework = false;
+                useEntityFramework = false;*/
+
+            useEntityFramework = useEF;
         }
 
-        static AppDBContext? dbContext;
+        /*static AppDBContext? dbContext;
         static IRepository<Game>? gamesEntityFrameWork;
         static IRepository<Review>? reviewEntityFrameWork;
         static DataAccessLayer.DapperRepository<Game> gamesDapper = new DataAccessLayer.DapperRepository<Game>();
@@ -53,12 +55,15 @@ namespace BusinessLogic
         {
             InitializeEF();
         }
+
         private static void SaveChanges()
         {
             if (useEntityFramework)
                 dbContext!.SaveChanges();
             
-        }
+        }*/
+
+
         /// <summary>
         /// Получает игру по указанному ID.
         /// </summary>
@@ -66,7 +71,10 @@ namespace BusinessLogic
         /// <returns>Объект Game, если найден; иначе null.</returns>
         public static Game GetGameById(int id)
         {
-            return GameRepo.ReadById(id);
+            //return GameRepo.ReadById(id);
+
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            return uow.GameRepository.ReadById(id);
         }
 
         /// <summary>
@@ -75,7 +83,10 @@ namespace BusinessLogic
         /// <returns>Список всех игр.</returns>
         public static List<Game> GetGames()
         {
-            return GameRepo.ReadAll();
+            //return GameRepo.ReadAll();
+
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            return uow.GameRepository.ReadAll();
         }
 
         /// <summary>
@@ -87,8 +98,10 @@ namespace BusinessLogic
         /// <returns>Отфильтрованный и отсортированный список игр.</returns>
         public static List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
-            var result = GameRepo.ReadAll().AsEnumerable();
+            //var result = GameRepo.ReadAll().AsEnumerable();
 
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            var result = uow.GameRepository.ReadAll().AsEnumerable();
 
             // Фильтрация по поиску
             if (!string.IsNullOrWhiteSpace(searchText))
@@ -131,13 +144,17 @@ namespace BusinessLogic
         /// </remarks>
         public static void AddGame(Game game)
         {
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             // Инициализируем списки, если null
             game.Platforms ??= new List<EnumPlatforms>();
             game.Screenshots ??= new List<string>();
             game.Reviews ??= new List<Review>();
 
-            GameRepo.Add(game);
-            SaveChanges();
+            uow.GameRepository.Add(game);
+            uow.SaveChanges();
+
+            /*GameRepo.Add(game);
+            SaveChanges();*/
         }
 
         /// <summary>
@@ -147,11 +164,26 @@ namespace BusinessLogic
         /// <returns>true, если игра обновлена; иначе false.</returns>
         public static bool UpdateGame(Game updatedGame)
         {
-            var existingGame = GameRepo.ReadAll().FirstOrDefault(g => g.ID == updatedGame.ID);
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            var existingGame = uow.GameRepository.ReadById(updatedGame.ID);
+
+            //var existingGame = GameRepo.ReadAll().FirstOrDefault(g => g.ID == updatedGame.ID);
             if (existingGame == null) return false;
 
-            GameRepo.Update(updatedGame);
-            SaveChanges();
+            existingGame.Name = updatedGame.Name;
+            existingGame.Developer = updatedGame.Developer;
+            existingGame.YearOfRelease = updatedGame.YearOfRelease;
+            existingGame.Platforms = updatedGame.Platforms;
+            existingGame.Rating = updatedGame.Rating;
+            existingGame.Description = updatedGame.Description;
+            existingGame.Icon = updatedGame.Icon;
+            existingGame.Screenshots = updatedGame.Screenshots;
+
+            uow.GameRepository.Update(existingGame);
+            uow.SaveChanges();
+
+            /*GameRepo.Update(updatedGame);
+            SaveChanges();*/
             return true;
         }
 
@@ -162,10 +194,17 @@ namespace BusinessLogic
         /// <returns>true, если игра удалена; иначе false.</returns>
         public static bool DeleteGame(int gameId)
         {
-            var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            var game = uow.GameRepository.ReadById(gameId);
+
+            //var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
+
             if (game == null) return false;
 
-            if (game.Reviews != null)
+            uow.GameRepository.Delete<Game>(gameId); // Удаляет и отзывы через Dapper UoW
+            uow.SaveChanges();
+
+            /*if (game.Reviews != null)
             {
                 foreach (Review review in game.Reviews)
                 {
@@ -173,7 +212,7 @@ namespace BusinessLogic
                 }
             }
             GameRepo.Delete<Game>(gameId);
-            SaveChanges();
+            SaveChanges();*/
             return true;
         }
 
@@ -188,25 +227,39 @@ namespace BusinessLogic
         /// <returns>true, если отзыв добавлен; иначе false.</returns>
         public static bool AddReviewToGame(int gameId, Review review)
         {
-            var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            var game = uow.GameRepository.ReadById(gameId);
+
+            //var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
             game.Reviews ??= new List<Review>();
-
             review.Username = string.IsNullOrWhiteSpace(review.Username) ? "Аноним" : review.Username.Trim();
-
             review.Rating = Math.Max(1.0f, Math.Min(5.0f, review.Rating));
-            dbContext.Entry(review).Property("GameId").CurrentValue = gameId;
-            game.Reviews.Add(review);
-            ReviewRepo.Add(review);
-            SaveChanges();
 
-            if (game.Reviews.Count > 0)
+            review.GameId = gameId;
+            uow.ReviewRepository.Add(review);
+            uow.SaveChanges();
+
+            //dbContext.Entry(review).Property("GameId").CurrentValue = gameId;
+            /*game.Reviews.Add(review);
+            ReviewRepo.Add(review);
+            SaveChanges();*/
+
+            var updatedGame = uow.GameRepository.ReadById(gameId);
+            if (updatedGame?.Reviews?.Count > 0)
+            {
+                updatedGame.Rating = updatedGame.Reviews.Average(r => r.Rating);
+                uow.GameRepository.Update(updatedGame);
+                uow.SaveChanges();
+            }
+
+            /*if (game.Reviews.Count > 0)
             {
                 game.Rating = game.Reviews.Average(r => r.Rating);
                 GameRepo.Update(game);
                 SaveChanges();
-            }
+            }*/
 
             return true;
         }
