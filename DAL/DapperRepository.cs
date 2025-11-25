@@ -31,24 +31,10 @@ namespace DataAccessLayer
         public string? Reviews { get; set; }
     }
 
-    public class DapperRepository <T> : IRepository<T> where T : IDomainObject
+    public class DapperRepository <T>(IDbConnection connection, IDbTransaction? transaction) : IRepository<T> where T : IDomainObject
     {
-        private readonly IDbConnection connection;
-        private readonly IDbTransaction? transaction;
-
-        // Конструктор для использования вне UoW (самостоятельно открывает соединение)
-        public DapperRepository()
-        {
-            connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True");
-            transaction = null;
-        }
-
-        // Конструктор для использования внутри UoW (получает соединение и транзакцию)
-        public DapperRepository(IDbConnection connection, IDbTransaction? transaction)
-        {
-            this.connection = connection;
-            this.transaction = transaction;
-        }
+        private readonly IDbConnection connection = connection;
+        private readonly IDbTransaction? transaction = transaction;
 
         //readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
 
