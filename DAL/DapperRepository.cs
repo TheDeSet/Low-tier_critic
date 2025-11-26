@@ -36,8 +36,6 @@ namespace DataAccessLayer
         private readonly IDbConnection connection = connection;
         private readonly IDbTransaction? transaction = transaction;
 
-        //readonly string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
-
         /// <summary>
         /// Сериализует список EnumPlatforms в строку, разделённую запятыми.
         /// </summary>
@@ -109,7 +107,6 @@ namespace DataAccessLayer
                     Icon = game.Icon,
                     Screenshots = SerializeScreenshots(game.Screenshots),
                 };
-                /*using IDbConnection connection = new SqlConnection(ConnectionString);*/
                 connection.Execute(sqlQuery, parameters, transaction);
             }
             else if (typeof(T) == typeof(Entities.Review))
@@ -117,7 +114,6 @@ namespace DataAccessLayer
                 Review review = entity as Review;
                 string sqlQuery = @"INSERT INTO Reviews (Username, Rating, ReviewText, GameId) " +
                     "VALUES (@Username, @Rating, @ReviewText, @GameId)";
-                /*using IDbConnection connection = new SqlConnection(ConnectionString);*/
                 connection.Execute(sqlQuery, review, transaction);
             }
         }
@@ -126,10 +122,6 @@ namespace DataAccessLayer
         {
             if (typeof(T) == typeof(Entities.Game))
             {
-                /*string sqlQuery = @"DELETE FROM Games WHERE ID = @ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, new { ID = id });*/
-                
                 // Удаляем отзывы, связанные с игрой
                 connection.Execute("DELETE FROM Reviews WHERE GameId = @ID", new { ID = id }, transaction);
                 // Удаляем саму игру
@@ -137,10 +129,6 @@ namespace DataAccessLayer
             }
             else if (typeof(T) == typeof(Entities.Review))
             {
-                /*string sqlQuery = @"DELETE FROM Reviews WHERE ID = @ID";
-                using IDbConnection connection = new SqlConnection(ConnectionString);
-                connection.Execute(sqlQuery, new { ID = id });*/
-
                 connection.Execute("DELETE FROM Reviews WHERE ID = @ID", new { ID = id }, transaction);
             }
         }
@@ -167,7 +155,6 @@ namespace DataAccessLayer
                     Icon = game.Icon,
                     Screenshots = SerializeScreenshots(game.Screenshots),
                 };
-                //using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, parameters, transaction);
             }
             else if (typeof(T) == typeof(Entities.Review))
@@ -176,7 +163,6 @@ namespace DataAccessLayer
                 string sqlQuery = @"UPDATE Reviews " +
                     "SET Username = @Username, Rating = @Rating, ReviewText = @ReviewText, GameId = @GameId" +
                     "WHERE ID = @ID";
-                //using IDbConnection connection = new SqlConnection(ConnectionString);
                 connection.Execute(sqlQuery, review, transaction);
             }
         }
@@ -186,7 +172,6 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = @"SELECT * FROM Games WHERE ID = @ID";
-                //using IDbConnection connection = new SqlConnection(ConnectionString);
                 GameDTO gameDTO = connection.QueryFirstOrDefault<GameDTO>(sqlQuery, new { ID = id }, transaction);
                 Game game = new Game();
                 game.ID = gameDTO.ID;
@@ -208,7 +193,6 @@ namespace DataAccessLayer
             else if (typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = @"SELECT * FROM Reviews WHERE ID = @ID";
-                //using IDbConnection connection = new SqlConnection(ConnectionString);
                 Review review = connection.QueryFirstOrDefault<Review>(sqlQuery, new { ID = id }, transaction);
                 return (T)(object)review;
             }
@@ -224,7 +208,6 @@ namespace DataAccessLayer
             if (typeof(T) == typeof(Entities.Game))
             {
                 string sqlQuery = "SELECT * FROM Games ORDER BY ID";
-                //using IDbConnection connection = new SqlConnection(ConnectionString);
                 List<GameDTO> gamesDTO = connection.Query<GameDTO>(sqlQuery, transaction:transaction).AsList();
                 foreach (GameDTO gameDTO in gamesDTO)
                 {
@@ -248,7 +231,6 @@ namespace DataAccessLayer
             else if(typeof(T) == typeof(Entities.Review))
             {
                 string sqlQuery = "SELECT * FROM Reviews ORDER BY ID";
-                //using IDbConnection connection = new SqlConnection(ConnectionString);
                 List<Review> reviews = connection.Query<Review>(sqlQuery, transaction: transaction).AsList();
                 foreach (Review review in reviews)
                 {

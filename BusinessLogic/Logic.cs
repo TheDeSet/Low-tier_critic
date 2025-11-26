@@ -24,43 +24,49 @@ namespace BusinessLogic
         /// <param name="useEF">Если true, использует Entity Framework; если false, использует Dapper.</param>
         public static void ToggleDataAccessLayer(bool useEF)
         {
-            /*if (useEF == true)
-                useEntityFramework = true;
-            if (useEF == false)
-                useEntityFramework = false;*/
-
             useEntityFramework = useEF;
         }
 
-        /*static AppDBContext? dbContext;
-        static IRepository<Game>? gamesEntityFrameWork;
-        static IRepository<Review>? reviewEntityFrameWork;
-        static DataAccessLayer.DapperRepository<Game> gamesDapper = new DataAccessLayer.DapperRepository<Game>();
-        static DataAccessLayer.DapperRepository<Review> reviewsDapper = new DataAccessLayer.DapperRepository<Review>();
-        static IRepository<Game> GameRepo => useEntityFramework ? gamesEntityFrameWork! : gamesDapper;
-        static IRepository<Review> ReviewRepo => useEntityFramework ? reviewEntityFrameWork! : reviewsDapper;
-
-        /// <summary>
-        /// Инициализирует репозиторий EntityFramework
-        /// </summary>
-        private static void InitializeEF()
+        /*static Logic()
         {
-            dbContext = new AppDBContext();
-            dbContext.Database.EnsureCreated();
+            List<Game> _games = TestData.GenerateSampleGames();
+            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
+            if (uow.GameRepository.ReadAll().Count == 0)
+            {
+                foreach (var game in _games)
+                {
 
-            gamesEntityFrameWork = new EntityRepository<Game>(dbContext);
-            reviewEntityFrameWork = new EntityRepository<Review>(dbContext);
-        }
-        static Logic()
-        {
-            InitializeEF();
-        }
+                    var gameCopy = new Game
+                    {
+                        Name = game.Name,
+                        Developer = game.Developer,
+                        YearOfRelease = game.YearOfRelease,
+                        Platforms = new List<EnumPlatforms>(game.Platforms),
+                        Rating = game.Rating,
+                        Description = game.Description,
+                        Icon = game.Icon,
+                        Screenshots = new List<string>(game.Screenshots),
+                        Reviews = new List<Review>()
+                    };
 
-        private static void SaveChanges()
-        {
-            if (useEntityFramework)
-                dbContext!.SaveChanges();
-            
+
+                    foreach (var review in game.Reviews)
+                    {
+                        var reviewCopy = new Review
+                        {
+                            Username = review.Username,
+                            Rating = review.Rating,
+                            ReviewText = review.ReviewText
+                        };
+                        uow.ReviewRepository.Add(reviewCopy);
+                        uow.ReviewRepository.GetType().GetMethod("SaveChanges")?.Invoke(uow.ReviewRepository, null);
+                        gameCopy.Reviews.Add(reviewCopy);
+                    }
+
+                    uow.GameRepository.Add(gameCopy);
+                }
+                uow.SaveChanges();
+            }
         }*/
 
 
@@ -71,8 +77,6 @@ namespace BusinessLogic
         /// <returns>Объект Game, если найден; иначе null.</returns>
         public static Game GetGameById(int id)
         {
-            //return GameRepo.ReadById(id);
-
             using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             return uow.GameRepository.ReadById(id);
         }
@@ -83,8 +87,6 @@ namespace BusinessLogic
         /// <returns>Список всех игр.</returns>
         public static List<Game> GetGames()
         {
-            //return GameRepo.ReadAll();
-
             using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             return uow.GameRepository.ReadAll();
         }
@@ -98,8 +100,6 @@ namespace BusinessLogic
         /// <returns>Отфильтрованный и отсортированный список игр.</returns>
         public static List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
-            //var result = GameRepo.ReadAll().AsEnumerable();
-
             using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             var result = uow.GameRepository.ReadAll().AsEnumerable();
 
@@ -152,9 +152,6 @@ namespace BusinessLogic
 
             uow.GameRepository.Add(game);
             uow.SaveChanges();
-
-            /*GameRepo.Add(game);
-            SaveChanges();*/
         }
 
         /// <summary>
@@ -167,7 +164,6 @@ namespace BusinessLogic
             using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             var existingGame = uow.GameRepository.ReadById(updatedGame.ID);
 
-            //var existingGame = GameRepo.ReadAll().FirstOrDefault(g => g.ID == updatedGame.ID);
             if (existingGame == null) return false;
 
             existingGame.Name = updatedGame.Name;
@@ -181,9 +177,6 @@ namespace BusinessLogic
 
             uow.GameRepository.Update(existingGame);
             uow.SaveChanges();
-
-            /*GameRepo.Update(updatedGame);
-            SaveChanges();*/
             return true;
         }
 
@@ -197,22 +190,11 @@ namespace BusinessLogic
             using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             var game = uow.GameRepository.ReadById(gameId);
 
-            //var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
-
             if (game == null) return false;
 
             uow.GameRepository.Delete<Game>(gameId); // Удаляет и отзывы через Dapper UoW
             uow.SaveChanges();
 
-            /*if (game.Reviews != null)
-            {
-                foreach (Review review in game.Reviews)
-                {
-                    ReviewRepo.Delete<Review>(review.ID);
-                }
-            }
-            GameRepo.Delete<Game>(gameId);
-            SaveChanges();*/
             return true;
         }
 
@@ -230,7 +212,6 @@ namespace BusinessLogic
             using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
             var game = uow.GameRepository.ReadById(gameId);
 
-            //var game = GameRepo.ReadAll().FirstOrDefault(g => g.ID == gameId);
             if (game == null) return false;
 
             game.Reviews ??= new List<Review>();
@@ -241,11 +222,6 @@ namespace BusinessLogic
             uow.ReviewRepository.Add(review);
             uow.SaveChanges();
 
-            //dbContext.Entry(review).Property("GameId").CurrentValue = gameId;
-            /*game.Reviews.Add(review);
-            ReviewRepo.Add(review);
-            SaveChanges();*/
-
             var updatedGame = uow.GameRepository.ReadById(gameId);
             if (updatedGame?.Reviews?.Count > 0)
             {
@@ -253,13 +229,6 @@ namespace BusinessLogic
                 uow.GameRepository.Update(updatedGame);
                 uow.SaveChanges();
             }
-
-            /*if (game.Reviews.Count > 0)
-            {
-                game.Rating = game.Reviews.Average(r => r.Rating);
-                GameRepo.Update(game);
-                SaveChanges();
-            }*/
 
             return true;
         }
