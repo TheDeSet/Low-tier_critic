@@ -1,33 +1,29 @@
 ﻿using BusinessLogic;
+using BusinessLogic.Services;
+using Ninject;
 using View;
 
 namespace pract1
 {
     public partial class MainMenu : Form
     {
+        private readonly IGameService gameService;
+        private readonly IReviewService reviewService;
         public MainMenu()
         {
             InitializeComponent();
-
             var result = MessageBox.Show(
-                $"Текущий: 'Entity Framework'.\n\nОставить как есть?",
-                "Подтверждение переключения",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button1
+                "Да - Использовать EntityFrameWork \n\n Нет - Использовать Dapper",
+                "Выбор режима",
+                MessageBoxButtons.YesNo
             );
 
-            bool useEF = result switch
-            {
-                DialogResult.Yes => true,
-                DialogResult.No => false,
-                _ => true // Cancel → по умолчанию EF
-            };
-            Logic.ToggleDataAccessLayer(useEF);
-            if (useEF == true)
-                MessageBox.Show("Используется Entity Framework", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            if(useEF == false)
-                MessageBox.Show("Используется Dapper", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            bool useEF = result == DialogResult.Yes;
+
+            IKernel kernel = new StandardKernel(new NinjectConfigModule(useEF));
+
+            gameService = kernel.Get<IGameService>();
+            reviewService = kernel.Get<IReviewService>();
 
 
             // Загружаем игры
@@ -64,7 +60,7 @@ namespace pract1
             string searchField = CMB_Filter.SelectedItem?.ToString() ?? "искать по всему";
             string searchText = TB_Search.Text?.Trim() ?? "";
             string sortOption = CMB_Sort.SelectedItem?.ToString() ?? "без сортировки";
-            var filteredGames = Logic.GetFilteredGames(
+            var filteredGames = gameService.GetFilteredGames(
                 searchField,
                 searchText,
                 sortOption
@@ -74,11 +70,13 @@ namespace pract1
             {
                 var tile = new ShowGameView();
                 tile.SetGame(game);
-                tile.GameUpdated += (s, e) =>
+                tile.OpenRequested += (s, gameId) =>
                 {
-                    // Обновляем ВСЕ плитки, потому что рейтинг мог измениться у любой игры
-                    LoadGames();
+                    var detailsForm = new FullGameInformation(gameId, gameService, reviewService);
+                    detailsForm.FormClosed += (fs, fe) => LoadGames();
+                    detailsForm.ShowDialog();
                 };
+                tile.GameUpdated += (s, e) => LoadGames();
                 FLP_GamesView.Controls.Add(tile);
             }
         }
@@ -117,7 +115,7 @@ namespace pract1
             if (result == DialogResult.Yes)
             {
 
-                bool success = Logic.DeleteGame(selectedTile.GameData.ID);
+                bool success = gameService.DeleteGame(selectedTile.GameData.ID);
 
                 if (success)
                 {
@@ -142,8 +140,11 @@ namespace pract1
         /// <param name="e">Аргументы события.</param>
         private void BTN_Add_Click(object? sender, EventArgs e)
         {
-            AddNewGame addNewGame = new();
-            addNewGame.ShowDialog();
+            AddNewGame addNewGame = new(gameService);
+            if (addNewGame.ShowDialog() == DialogResult.OK)
+            {
+                LoadGames();
+            }
             LoadGames();
         }
 
@@ -171,9 +172,8 @@ namespace pract1
                 return;
             }
 
-            UpdateGame UpdGame = new UpdateGame(selectedTile.GameData.ID);
-
-            if (UpdGame.ShowDialog() == DialogResult.OK)
+            var updForm = new UpdateGame(selectedTile.GameData.ID, gameService);
+            if (updForm.ShowDialog() == DialogResult.OK)
             {
                 LoadGames();
             }

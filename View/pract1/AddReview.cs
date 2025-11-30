@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using BusinessLogic.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,18 +14,20 @@ namespace View
 {
     public partial class AddReview : Form
     {
+        private readonly IReviewService reviewService;
+        private readonly int IdGame;
         /// <summary>
         /// Инициализирует форму добавления отзыва для конкретной игры.
         /// </summary>
         /// <param name="gameId">ID игры, к которой будет добавлен отзыв.</param>
-        public AddReview(int gameId)
+        public AddReview(int gameId, IReviewService reviewService)
         {
-            IdGame = gameId;
             InitializeComponent();
+            IdGame = gameId;
+            this.reviewService = reviewService;
             BTN_Add.Click += BtnAdd_Click;
             BTN_Cancel.Click += (s, e) => this.Close();
         }
-        private int IdGame;
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки добавления отзыва. Проверяет валидность данных, создает объект отзыва и сохраняет его через логику.
@@ -52,7 +55,7 @@ namespace View
                 ReviewText = RTB_ReviewText.Text.Trim()
             };
 
-            bool success = Logic.AddReviewToGame(IdGame, review);
+            bool success = reviewService.AddReviewToGame(IdGame, review);
 
             if (success)
             {

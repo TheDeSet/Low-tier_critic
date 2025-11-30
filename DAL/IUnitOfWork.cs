@@ -11,6 +11,7 @@ namespace DataAccessLayer
     {
         IRepository<Game> GameRepository { get; }
         IRepository<Review> ReviewRepository { get; }
+        void Begin();
         int SaveChanges();
         Task<int> SaveChangesAsync();
     }

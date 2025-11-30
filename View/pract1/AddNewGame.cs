@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using BusinessLogic.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,9 +15,14 @@ namespace View
 {
     public partial class AddNewGame : Form
     {
-        public AddNewGame()
+        private readonly IGameService gameService;
+        private string currentIcon;
+        private List<string> screenshots = new List<string>();
+        public AddNewGame(IGameService gameService)
         {
+
             InitializeComponent();
+            this.gameService = gameService;
             // Заполнение CHKLTB_Platform
             foreach (Entities.EnumPlatforms platform in Enum.GetValues(typeof(Entities.EnumPlatforms)))
             {
@@ -28,9 +34,6 @@ namespace View
             BTN_Add.Click += BTN_Add_Click;
             PIC_Game.Image = View.Properties.Resources.No_image; // заглушка
         }
-
-        private string currentIcon;
-        private List<string> screenshots = new List<string>();
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки выбора иконки игры. Открывает диалог OpenFileDialog для выбора файла иконки, 
@@ -169,9 +172,8 @@ namespace View
                     newGame.Platforms.Add((Entities.EnumPlatforms)index);
                 }
             }
-
             
-            Logic.AddGame(newGame);
+            gameService.AddGame(newGame);
 
             MessageBox.Show($"Игра \"{newGame.Name}\" успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);         
             ResetForm();
