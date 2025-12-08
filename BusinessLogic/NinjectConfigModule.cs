@@ -28,8 +28,8 @@ namespace BusinessLogic
                 Bind<IUnitOfWork>().To<DapperUnitOfWork>().InSingletonScope();
             }
 
-            Bind<IGameService>().To<GameService>();
-            Bind<IReviewService>().To<ReviewService>();
+            Bind<IGameService>().To<GameService>().InSingletonScope();
+            Bind<IReviewService>().To<ReviewService>().InSingletonScope();
         }
     }
 }

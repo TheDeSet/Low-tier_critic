@@ -16,6 +16,7 @@ namespace BusinessLogic
         {
             unitOfWork = uow;
         }
+
         public Game GetGameById(int id)
         {
             return unitOfWork.GameRepository.ReadById(id);
@@ -26,59 +27,9 @@ namespace BusinessLogic
             return unitOfWork.GameRepository.ReadAll();
         }
 
-        /*static Logic()
-        {
-            List<Game> _games = TestData.GenerateSampleGames();
-            using var uow = UnitOfWorkContextWork.Create(useEntityFramework);
-            if (uow.GameRepository.ReadAll().Count == 0)
-            {
-                foreach (var game in _games)
-                {
-
-                    var gameCopy = new Game
-                    {
-                        Name = game.Name,
-                        Developer = game.Developer,
-                        YearOfRelease = game.YearOfRelease,
-                        Platforms = new List<EnumPlatforms>(game.Platforms),
-                        Rating = game.Rating,
-                        Description = game.Description,
-                        Icon = game.Icon,
-                        Screenshots = new List<string>(game.Screenshots),
-                        Reviews = new List<Review>()
-                    };
-
-
-                    foreach (var review in game.Reviews)
-                    {
-                        var reviewCopy = new Review
-                        {
-                            Username = review.Username,
-                            Rating = review.Rating,
-                            ReviewText = review.ReviewText
-                        };
-                        uow.ReviewRepository.Add(reviewCopy);
-                        uow.ReviewRepository.GetType().GetMethod("SaveChanges")?.Invoke(uow.ReviewRepository, null);
-                        gameCopy.Reviews.Add(reviewCopy);
-                    }
-
-                    uow.GameRepository.Add(gameCopy);
-                }
-                uow.SaveChanges();
-            }
-        }*/
-
-
-        /// <summary>
-        /// Фильтрует и сортирует игры по заданным параметрам.
-        /// </summary>
-        /// <param name="searchField">Поле для поиска (названию, разработчику, искать по всему).</param>
-        /// <param name="searchText">Текст для поиска.</param>
-        /// <param name="sortOption">Опция сортировки (возрастанию (рейтинг), убыванию (рейтинг)).</param>
-        /// <returns>Отфильтрованный и отсортированный список игр.</returns>
         public List<Game> GetFilteredGames(string searchField, string searchText, string sortOption)
         {
-            unitOfWork.Begin();
+            unitOfWork.TransactionBegin();
             var result = unitOfWork.GameRepository.ReadAll().AsEnumerable();
 
             // Фильтрация по поиску
@@ -113,16 +64,9 @@ namespace BusinessLogic
             return result.ToList();
         }
 
-        /// <summary>
-        /// Добавляет новую игру в хранилище.
-        /// </summary>
-        /// <param name="game">Объект игры для добавления.</param>
-        /// <remarks>
-        /// Автоматически назначает ID (максимальный текущий +1), инициализирует пустые списки (Platforms, Screenshots, Reviews) при необходимости.
-        /// </remarks>
         public void AddGame(Game game)
         {
-            unitOfWork.Begin();
+            unitOfWork.TransactionBegin();
 
             game.Platforms ??= new List<EnumPlatforms>();
             game.Screenshots ??= new List<string>();
@@ -132,14 +76,9 @@ namespace BusinessLogic
             unitOfWork.SaveChanges();
         }
 
-        /// <summary>
-        /// Обновляет существующую игру по ID.
-        /// </summary>
-        /// <param name="updatedGame">Обновленный объект игры.</param>
-        /// <returns>true, если игра обновлена; иначе false.</returns>
         public bool UpdateGame(Game updatedGame)
         {
-            unitOfWork.Begin();
+            unitOfWork.TransactionBegin();
 
             var existingGame = unitOfWork.GameRepository.ReadById(updatedGame.ID);
             if (existingGame == null) return false;
@@ -158,14 +97,9 @@ namespace BusinessLogic
             return true;
         }
 
-        /// <summary>
-        /// Удаляет игру по указанному ID из хранилища.
-        /// </summary>
-        /// <param name="gameId">ID удаляемой игры.</param>
-        /// <returns>true, если игра удалена; иначе false.</returns>
         public bool DeleteGame(int gameId)
         {
-            unitOfWork.Begin();
+            unitOfWork.TransactionBegin();
             var game = unitOfWork.GameRepository.ReadById(gameId);
 
             if (game == null) return false;

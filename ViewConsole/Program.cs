@@ -578,6 +578,9 @@ namespace ViewConsole
                 }
             }
         }
+        /// <summary>
+        /// Переключает используемый репозитотрий 
+        /// </summary>
         private static void RestartWithNewDAL()
         {
             bool useEF = AskDataAccessType();
@@ -587,6 +590,10 @@ namespace ViewConsole
             gameService = kernel.Get<IGameService>();
             reviewService = kernel.Get<IReviewService>();
         }
+        /// <summary>
+        /// Запрашивает у пользователя репозиторий, который нужно использовать
+        /// </summary>
+        /// <returns>true, если нужно использовать EFW и false, если Dapper</returns>
         private static bool AskDataAccessType()
         {
             while (true)

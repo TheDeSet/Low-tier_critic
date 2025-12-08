@@ -25,13 +25,20 @@ namespace DataAccessLayer
 
         public IRepository<Game> GameRepository => gameRepository;
         public IRepository<Review> ReviewRepository => reviewRepository;
-        public void Begin()
+        public void TransactionBegin()
         {
             if (started) return;
 
             transaction = context.Database.BeginTransaction();
             started = true;
         }
+        /// <summary>
+        /// Синхронно сохраняет все изменения в контексте базы данных и фиксирует транзакцию.
+        /// </summary>
+        /// <returns>Количество записей, затронутых операциями сохранения.</returns>
+        /// <remarks>
+        /// В случае ошибки выполняется откат транзакции.
+        /// </remarks>
         public int SaveChanges()
         {
             try
@@ -51,7 +58,15 @@ namespace DataAccessLayer
                 Dispose();
             }
         }
-
+        /// <summary>
+        /// Асинхронно сохраняет все изменения в контексте базы данных и фиксирует транзакцию.
+        /// </summary>
+        /// /// <returns>
+        /// Количеством затронутых записей.
+        /// </returns>
+        /// <remarks>
+        /// В случае ошибки выполняется откат транзакции.
+        /// </remarks>
         public async Task<int> SaveChangesAsync()
         {
             try
@@ -71,7 +86,9 @@ namespace DataAccessLayer
                 Dispose();
             }
         }
-
+        /// <summary>
+        /// Завершает транзакцию.
+        /// </summary>
         public void Dispose()
         {
             transaction?.Dispose();

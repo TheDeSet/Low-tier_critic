@@ -11,8 +11,8 @@ namespace DataAccessLayer
 {
     public class DapperUnitOfWork : IUnitOfWork
     {
-        private readonly string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
-        //private readonly string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security = True";
+        //private readonly string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"D:\\CloneGIT\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security=True";
+        private readonly string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Projects\\Homework\\C#\\Lab 3.1\\Low-tier_critic\\Data Base\\DB_Low_tier_critic.mdf\";Integrated Security = True";
         private  SqlConnection connection;
         private  SqlTransaction? transaction;
 
@@ -21,7 +21,10 @@ namespace DataAccessLayer
         public IRepository<Game> GameRepository { get; private set; }
         public IRepository<Review> ReviewRepository { get; private set; }
 
-        public void Begin()
+        /// <summary>
+        /// Начинает новую транзакцию базы данных и инициализирует репозитории.
+        /// </summary>
+        public void TransactionBegin()
         {
             if (started) return;
 
@@ -36,6 +39,14 @@ namespace DataAccessLayer
             started = true;
         }
 
+        /// <summary>
+        /// Фиксирует текущую транзакцию, сохраняя все изменения в базе данных.
+        /// </summary>
+        /// <returns>0 в случае успешного выполнения.</returns>
+        /// <remarks>
+        /// Автоматически закрывает соединение и освобождает ресурсы после завершения.
+        /// В случае ошибки выполняет откат всех изменений.
+        /// </remarks>
         public int SaveChanges()
         {
             try
@@ -57,6 +68,10 @@ namespace DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Асинхронно фиксирует текущую транзакцию, сохраняя все изменения в базе данных.
+        /// </summary>
+        /// <returns>0 в случае успешного выполнения.</returns>
         public async Task<int> SaveChangesAsync()
         {
             try
@@ -79,6 +94,9 @@ namespace DataAccessLayer
             }
         }
 
+        /// <summary>
+        /// Завершает транзакцию и закрывает соединение с базой данных.
+        /// </summary>
         public void Dispose()
         {
             transaction?.Dispose();

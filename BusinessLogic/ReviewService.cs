@@ -21,6 +21,7 @@ namespace BusinessLogic
             var game = unitOfWork.GameRepository.ReadById(gameId);
             return game?.Reviews ?? new List<Review>();
         }
+
         /// <summary>
         /// Добавляет отзыв к указанной игре.
         /// </summary>
@@ -32,7 +33,7 @@ namespace BusinessLogic
         /// <returns>true, если отзыв добавлен; иначе false.</returns>
         public bool AddReviewToGame(int gameId, Review review)
         {
-            unitOfWork.Begin();
+            unitOfWork.TransactionBegin();
             var game = unitOfWork.GameRepository.ReadById(gameId);
 
             if (game == null) return false;
