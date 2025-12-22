@@ -1,0 +1,134 @@
+﻿using Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Entities.Test
+{
+    public static class TestData
+    {
+        public static List<Game> GenerateSampleGames()
+        {
+            var games = new List<Game>();
+
+
+            var witcher3 = new Game
+            {
+                ID = 1,
+                Name = "The Witcher 3: Wild Hunt",
+                Developer = "CD Projekt Red",
+                YearOfRelease = 2015,
+                Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
+                Rating = 4.8f,
+                Description = "Эпическая RPG по мотивам книг Анджея Сапковского. Игра года 2015.",
+                Icon = "the-witcher-3-wild-1.jpg",
+                Screenshots = new List<string>
+                {
+                    "the-witcher-3-wild-2.jpg",
+                    "the-witcher-3-wild-3.jpg",
+                    "the-witcher-3-wild-4.jpg",
+                    "the-witcher-3-wild-5.jpg"
+                },
+                Reviews = new List<Review>
+                {
+                    new Review { Username = "GamerAlex", Rating = 5.0f, ReviewText = "Шедевр всех времён и народов!" },
+                    new Review { Username = "RPG_Fan", Rating = 4.5f, ReviewText = "Огромный мир, но сложный интерфейс." },
+                    new Review { Username = "CasualPlayer", Rating = 3.0f, ReviewText = "Слишком много текста, не для меня." }
+                }
+            };
+
+
+            var cyberpunk = new Game
+            {
+                ID = 2,
+                Name = "Cyberpunk 2077",
+                Developer = "CD Projekt Red",
+                YearOfRelease = 2020,
+                Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation5, EnumPlatforms.XboxSeries },
+                Rating = 4.5f,
+                Description = "Футуристический экшен в мире Night City. После патчей игра стала значительно лучше.",
+                Icon = "Cyberpunk-2077-1.jpg",
+                Screenshots = new List<string>
+                {
+                    "Cyberpunk-2077-2.png",
+                    "Cyberpunk-2077-3.png",
+                    "Cyberpunk-2077-4.png"
+                },
+                Reviews = new List<Review>
+                {
+                    new Review { Username = "TechGuru", Rating = 4.0f, ReviewText = "Графика на максимуме — вау!" },
+                    new Review { Username = "Disappointed", Rating = 2.0f, ReviewText = "Релиз был катастрофой, до сих пор баги." },
+                    new Review { Username = "Optimist", Rating = 5.0f, ReviewText = "После обновлений — совершенно новая игра!" }
+                }
+            };
+
+            
+            var hollowKnight = new Game
+            {
+                ID = 3,
+                Name = "Hollow Knight",
+                Developer = "Team Cherry",
+                YearOfRelease = 2017,
+                Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
+                Rating = 4.5f,
+                Description = "Метроидвания с потрясающей атмосферой, музыкой и боевой системой.",
+                Icon = "Hollow-knight-1.jpeg",
+                Screenshots = new List<string>
+                {
+                    "Hollow-knight-2.jpg",
+                    "Hollow-knight-3.png"
+                },
+                Reviews = new List<Review>
+                {
+                    new Review { Username = "IndieLover", Rating = 5.0f, ReviewText = "Лучшая инди-игра десятилетия!" },
+                    new Review { Username = "HardcoreGamer", Rating = 4.5f, ReviewText = "Сложно, но справедливо. Гениальный дизайн." }
+                }
+            };
+
+            var hollowKnight_silksong = new Game
+            {
+                ID = 4,
+                Name = "Hollow Knight: silksong",
+                Developer = "Team Cherry",
+                YearOfRelease = 2025,
+                Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation5, EnumPlatforms.XboxOne, EnumPlatforms.NintendoSwitch },
+                Rating = 4.5f,
+                Description = "Метроидвания с потрясающей атмосферой, музыкой и боевой системой.",
+                Icon = "Hollow-knight-silksong-1.png",
+                Screenshots = new List<string>
+                {
+                    "Hollow-knight-silksong-2.jpeg"
+                },
+                Reviews = new List<Review>
+                {
+                    new Review { Username = "IndieLover", Rating = 5.0f, ReviewText = "Лучшая инди-игра десятилетия!" },
+                    new Review { Username = "HardcoreGamer", Rating = 4.5f, ReviewText = "Сложно, но справедливо. Гениальный дизайн." }
+                }
+            };
+
+/*            var test = new Game
+            {
+                ID = 5,
+                Name = "test",
+                Developer = "test",
+                YearOfRelease = 2000,
+                Platforms = new List<EnumPlatforms> { EnumPlatforms.PC, EnumPlatforms.PlayStation, EnumPlatforms.XboxOne },
+                Rating = null,
+                Description = "test",
+                Icon = null,
+                Screenshots = new List<string>(),
+                Reviews = new List<Review>()
+            };*/
+            
+            games.Add(witcher3);
+            games.Add(cyberpunk);
+            games.Add(hollowKnight);
+            games.Add(hollowKnight_silksong);
+            //games.Add(test);
+
+            return games;
+        }
+    }
+}
