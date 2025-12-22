@@ -72,7 +72,7 @@ namespace pract1
 
             foreach (var game in filteredGames)
             {
-                var tile = new ShowGameView();
+                ShowGameView tile = new ShowGameView();
                 tile.SetGame(game);
                 tile.GameUpdated += (s, e) =>
                 {
@@ -91,7 +91,7 @@ namespace pract1
         /// <param name="e">Аргументы события.</param>
         private void OnDeleteButtonClick(object sender, EventArgs e)
         {
-            ShowGameView selectedTile = null;
+            ShowGameView? selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
             {
                 if (ctrl is ShowGameView tile && tile.IsSelected)
