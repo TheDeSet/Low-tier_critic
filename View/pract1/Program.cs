@@ -1,4 +1,5 @@
 using pract1;
+using static System.Windows.Forms.AxHost;
 
 namespace View
 {

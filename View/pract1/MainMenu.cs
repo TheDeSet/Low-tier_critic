@@ -1,15 +1,17 @@
-﻿using BusinessLogic;
+﻿using Entities;
+using Shared;
 using View;
 
 namespace pract1
 {
-    public partial class MainMenu : Form
+    public partial class MainMenu : Form, IFormMainMenu
     {
         public MainMenu()
         {
             InitializeComponent();
 
-            var result = MessageBox.Show(
+
+            /*var result = MessageBox.Show(
                 $"Текущий: 'Entity Framework'.\n\nОставить как есть?",
                 "Подтверждение переключения",
                 MessageBoxButtons.YesNoCancel,
@@ -27,11 +29,10 @@ namespace pract1
             if (useEF == true)
                 MessageBox.Show("Используется Entity Framework", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
             if(useEF == false)
-                MessageBox.Show("Используется Dapper", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                MessageBox.Show("Используется Dapper", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);*/
 
             // Загружаем игры
-            LoadGames();
+            /*LoadGames();
 
             CMB_Filter.SelectedIndex = 0;
             CMB_Sort.SelectedIndex = 0;
@@ -49,14 +50,16 @@ namespace pract1
                 PNL_Menu.Visible = !PNL_Menu.Visible;
             };
             BTN_Delete.Click += OnDeleteButtonClick;
-            BTN_Add.Click += BTN_Add_Click;
+            BTN_Add.Click += BTN_Add_Click;*/
         }
+
+
 
         /// <summary>
         /// Загружает список игр с учетом текущих параметров фильтрации, поиска и сортировки из интерфейса. Очищает контейнер плиток и 
         /// добавляет новую плитку для каждой игры из отфильтрованного списка. Обрабатывает событие обновления данных игры.
         /// </summary>
-        private void LoadGames()
+        /*private void LoadGames()
         {
             if (FLP_GamesView == null) return;
             FLP_GamesView.Controls.Clear();
@@ -81,7 +84,7 @@ namespace pract1
                 };
                 FLP_GamesView.Controls.Add(tile);
             }
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие удаления игры. Находит выделенную плитку, запрашивает подтверждение удаления, удаляет игру через логику 
@@ -89,7 +92,7 @@ namespace pract1
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void OnDeleteButtonClick(object sender, EventArgs e)
+        /*private void OnDeleteButtonClick(object sender, EventArgs e)
         {
             ShowGameView? selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
@@ -133,19 +136,19 @@ namespace pract1
             {
                 MessageBox.Show("Элемент остаётся без изменений", "Отмена", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие добавления новой игры. Открывает форму AddNewGame для ввода данных новой игры и обновляет список игр после закрытия формы.
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void BTN_Add_Click(object? sender, EventArgs e)
+        /*private void BTN_Add_Click(object? sender, EventArgs e)
         {
             AddNewGame addNewGame = new();
             addNewGame.ShowDialog();
             LoadGames();
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие обновления данных игры. Находит выделенную плитку, открывает форму UpdateGame для редактирования данных игры 
@@ -153,7 +156,7 @@ namespace pract1
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void BTN_Update_Click(object sender, EventArgs e)
+        /*private void BTN_Update_Click(object sender, EventArgs e)
         {
             ShowGameView selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
@@ -177,6 +180,6 @@ namespace pract1
             {
                 LoadGames();
             }
-        }
+        }*/
     }
 }

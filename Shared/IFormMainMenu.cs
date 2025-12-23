@@ -1,15 +1,19 @@
-﻿namespace Shared
+﻿using Entities;
+
+namespace Shared
 {
     public interface IFormMainMenu
     {
-        event EventHandler RepositoryChangeRequested;
-        event EventHandler LoadGamesRequested;
-        event EventHandler GameAdditionRequested;
-        event EventHandler GameDeletionRequested;
-        event EventHandler GameUpdateRequested;
+        event Action AddGameRequested;
+        event Action DeleteGameRequested;
+        event Action UpdateGameRequested;
+        event Action SearchRequested;
+        event Action SortRequested;
+        event Action ResetRequested;
 
-        string SearchField { get; set; }
-        string SearchText { get; set; }
-        string SearchOption { get; set; }
+        int? GetSelectedGameId();
+        void LoadGames(List<Game> games);
+        void ShowMessage(string message, string title);
+        void ShowConfirmation(string message, string title, Action onConfirm, Action onCancel);
     }
 }
