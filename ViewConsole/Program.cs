@@ -1,4 +1,7 @@
 ﻿using BusinessLogic;
+using BusinessLogic.Services;
+using Microsoft.VisualBasic.Logging;
+using Ninject;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Reflection;
@@ -8,6 +11,10 @@ namespace ViewConsole
 {
     internal class Program
     {
+        private static IGameService gameService;
+        private static IReviewService reviewService;
+        private static bool currentUseEF = true;
+
         /// <summary>
         /// Возвращает список строковых описаний всех платформ из перечисления EnumPlatforms.
         /// </summary>
@@ -23,6 +30,7 @@ namespace ViewConsole
             }
             return listOfPlatforms;
         }
+
 
         /// <summary>
         /// Возвращает список строковых описаний платформ для указанной игры.
@@ -64,44 +72,30 @@ namespace ViewConsole
         /// </summary>
         static void PrintMainMenu()
         {
-            List<Entities.Game> listOfGames = Logic.GetGames();
+            List<Entities.Game> listOfGames = gameService.GetGames();
+            string dataAccessType = currentUseEF ? "Entity Framework" : "Dapper";
             while (true)
             {
                 Console.Clear();
-                string dataAccessType = "";
-                if (BusinessLogic.Logic.useEntityFramework == true)
-                {
-                    dataAccessType = "Entity Framework";
-                }
-                else
-                {
-                    dataAccessType = "Dapper";
-                }
                 Console.WriteLine($"1. Выбрать игру из списка\n2. Меню управления списком\n3. Поиск/Сортировка\n4. Сброс сортировки\n5. Переключить режим Data Access  -  Текущий: {dataAccessType}\n6. Выход");
                 var key = Console.ReadKey(true);
                 switch (key.KeyChar)
                 {
                     case '1':
-                        PrintGameSelect(listOfGames, 0);
+                        PrintGameSelect(gameService.GetGames(), 0);
                         break;
                     case '2':
                         PrintControlMenu(listOfGames);
                         break;
                     case '3':
-                        listOfGames = PrintSearchAndFilterMenu();
+                        var filtered = PrintSearchAndFilterMenu();
+                        PrintGameSelect(filtered, 0);
                         break;
                     case '4':
-                        listOfGames = Logic.GetGames();
+                        PrintGameSelect(gameService.GetGames(), 0);
                         break;
                     case '5':
-                        if (BusinessLogic.Logic.useEntityFramework == true)
-                        {
-                            BusinessLogic.Logic.ToggleDataAccessLayer(false);
-                        }
-                        else
-                        {
-                            BusinessLogic.Logic.ToggleDataAccessLayer(true);
-                        }
+                        RestartWithNewDAL();
                         break;
                     case '6':
                         Environment.Exit(0);
@@ -111,7 +105,6 @@ namespace ViewConsole
                 }
             }
         }
-
         /// <summary>
         /// Отображает список игр и позволяет выбрать игру для просмотра, изменения или удаления.
         /// </summary>
@@ -166,7 +159,7 @@ namespace ViewConsole
         /// <param name="id">ID игры для отображения.</param>
         static void PrintGameDetails(int id)
         {
-            Entities.Game game = Logic.GetGameById(id);
+            Entities.Game game = gameService.GetGameById(id);
             string gamePlatforms = "";
             foreach (string platform in GetPlatformsStringList(game))
             {
@@ -228,7 +221,7 @@ namespace ViewConsole
             Console.Clear();
             Console.WriteLine("Напишите текст для отзыва");
             review.ReviewText = Console.ReadLine();
-            Logic.AddReviewToGame(id, review);
+            reviewService.AddReviewToGame(id, review);
         }
 
         /// <summary>
@@ -349,7 +342,7 @@ namespace ViewConsole
                 }
             }
             game.Platforms = FromDescriptionsToEnum<Entities.EnumPlatforms>(listOfChsnPlat);
-            Logic.AddGame(game);
+            gameService.AddGame(game);
         }
 
         /// <summary>
@@ -359,7 +352,7 @@ namespace ViewConsole
         static void PrintModifyMenu(int id)
         {
             Entities.Game game = new();
-            Entities.Game gameOld = Logic.GetGameById(id);
+            Entities.Game gameOld = gameService.GetGameById(id);
             game.ID = gameOld.ID;
             game.Name = gameOld.Name;
             game.Developer = gameOld.Developer;
@@ -473,7 +466,7 @@ namespace ViewConsole
                         break;
                     case '6':
                         {
-                            Logic.UpdateGame(game);
+                            gameService.UpdateGame(game);
                             isContinuing = false;
                             break;
                         }            
@@ -489,7 +482,7 @@ namespace ViewConsole
         /// <param name="id">ID игры для удаления.</param>
         static void PrintDeletionMenu(int id)
         {
-            Entities.Game game = Logic.GetGameById(id);
+            Entities.Game game = gameService.GetGameById(id);
             while (true)
             {
                 Console.Clear();
@@ -498,7 +491,7 @@ namespace ViewConsole
                 switch (key.KeyChar)
                 {
                     case '1':
-                        Logic.DeleteGame(game.ID);
+                        gameService.DeleteGame(game.ID);
                         return;
                     case '2':
                         return;
@@ -575,20 +568,56 @@ namespace ViewConsole
                                     sortOption = "убыванию (рейтинг)";
                                     break;
                             }
+                            break;
                         }
                         break;
                     case '4':
-                        return Logic.GetFilteredGames(searchField, searchText, sortOption);
-                        break;
+                        return gameService.GetFilteredGames(searchField, searchText, sortOption);
                     default:
                         break;
                 }
+            }
+        }
+        /// <summary>
+        /// Переключает используемый репозитотрий 
+        /// </summary>
+        private static void RestartWithNewDAL()
+        {
+            bool useEF = AskDataAccessType();
+            currentUseEF = useEF;
+
+            var kernel = new StandardKernel(new NinjectConfigModule(useEF));
+            gameService = kernel.Get<IGameService>();
+            reviewService = kernel.Get<IReviewService>();
+        }
+        /// <summary>
+        /// Запрашивает у пользователя репозиторий, который нужно использовать
+        /// </summary>
+        /// <returns>true, если нужно использовать EFW и false, если Dapper</returns>
+        private static bool AskDataAccessType()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("Выберите режим хранения данных:");
+                Console.WriteLine("1. Entity Framework");
+                Console.WriteLine("2. Dapper");
+
+                var key = Console.ReadKey(true).KeyChar;
+
+                return key == '1';
             }
         }
         static void Main(string[] args)
         {
             Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.Unicode;
+            bool useEF = AskDataAccessType();
+            currentUseEF = useEF;
+            var kernel = new StandardKernel(new NinjectConfigModule(useEF));
+            gameService = kernel.Get<IGameService>();
+            reviewService = kernel.Get<IReviewService>();
+
             PrintMainMenu();
         }
     }

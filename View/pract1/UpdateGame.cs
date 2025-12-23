@@ -1,4 +1,5 @@
 ﻿using BusinessLogic;
+using BusinessLogic.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,14 +14,19 @@ namespace View
 {
     public partial class UpdateGame : Form
     {
+        private readonly IGameService gameService;
+        private Entities.Game gameToEdit;
+        private string currentIcon;
+        private List<string> screenshots = new List<string>();
         /// <summary>
         /// Инициализирует форму редактирования игры. Заполняет список платформ из EnumPlatforms, загружает данные игры по указанному ID 
         /// и настраивает обработчики событий для кнопок выбора изображений, сброса и сохранения изменений.
         /// </summary>
         /// <param name="gameId">ID игры для редактирования.</param>
-        public UpdateGame(int gameId)
+        public UpdateGame(int gameId, IGameService gameService)
         {
             InitializeComponent();
+            this.gameService = gameService;
             foreach (Entities.EnumPlatforms platform in Enum.GetValues(typeof(Entities.EnumPlatforms)))
             {
                 CHKLTB_Platform.Items.Add(platform);
@@ -33,17 +39,13 @@ namespace View
             BTN_Add.Click += BTN_Add_Click;
         }
 
-        private Entities.Game gameToEdit;
-        private string currentIcon;
-        private List<string> screenshots = new List<string>();
-
         /// <summary>
         /// Загружает данные игры по указанному ID. Если игра не найдена, показывает сообщение об ошибке и закрывает форму.
         /// </summary>
         /// <param name="gameId">ID игры для загрузки.</param>
         private void LoadGame(int gameId)
         {
-            gameToEdit = Logic.GetGameById(gameId);
+            gameToEdit = gameService.GetGameById(gameId);
             if (gameToEdit == null)
             {
                 MessageBox.Show("Игра не найдена.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -197,7 +199,7 @@ namespace View
                 }
             }
 
-            bool success = Logic.UpdateGame(gameToEdit);
+            bool success = gameService.UpdateGame(gameToEdit);
 
             if (success)
             {

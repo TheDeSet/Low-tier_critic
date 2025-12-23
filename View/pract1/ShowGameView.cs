@@ -99,6 +99,10 @@ namespace pract1
         /// </summary>
         public event EventHandler GameUpdated;
         /// <summary>
+        /// Событие, сигнализирует, что нужно открыть детали передавая gameId.
+        /// </summary>
+        public event EventHandler<int> OpenRequested;
+        /// <summary>
         /// Обрабатывает событие двойного клика по плитке. Открывает форму с детальной информацией об игре и 
         /// подписывается на закрытие формы для обновления данных через событие GameUpdated.
         /// </summary>
@@ -108,14 +112,9 @@ namespace pract1
         {
             if (GameData?.ID > 0)
             {
-                var detailsForm = new FullGameInformation(GameData.ID);
-                detailsForm.FormClosed += (s, args) =>
-                {
-                    GameUpdated?.Invoke(this, EventArgs.Empty);
-                };
-                detailsForm.ShowDialog();
+                OpenRequested?.Invoke(this, GameData.ID);
             }
-            else 
+            else
             {
                 MessageBox.Show("Игра не найдена.");
             }

@@ -17,77 +17,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DataAccessLayer
 {  
-    public class GameDTO
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public string Developer { get; set; }
-        public int YearOfRelease { get; set; }
-        public string Platforms { get; set; }
-        public float? Rating { get; set; }
-        public string Description { get; set; }
-        public string? Icon { get; set; }
-        public string? Screenshots { get; set; }
-        public string? Reviews { get; set; }
-    }
 
     public class DapperRepository <T>(IDbConnection connection, IDbTransaction? transaction) : IRepository<T> where T : IDomainObject
     {
         private readonly IDbConnection connection = connection;
         private readonly IDbTransaction? transaction = transaction;
-
-        /// <summary>
-        /// Сериализует список EnumPlatforms в строку, разделённую запятыми.
-        /// </summary>
-        /// <param name="platforms">Список платформ для сериализации.</param>
-        /// <returns>Строка, представляющая список платформ.</returns>
-        private string SerializePlatforms(List<EnumPlatforms> platforms)
-        {
-            return JsonSerializer.Serialize(platforms, new JsonSerializerOptions { WriteIndented = false });
-        }
-
-        /// <summary>
-        /// Сериализует список строк путей к скриншотам в JSON-строку.
-        /// </summary>
-        /// <param name="images">Список путей скриншотов для сериализации.</param>
-        /// <returns>JSON-строка, представляющая список путей скриншотов.</returns>
-        private string SerializeScreenshots(List<string> images)
-        {
-            return JsonSerializer.Serialize(images, new JsonSerializerOptions { WriteIndented = false });
-        }
-
-        /// <summary>
-        /// Десериализует строку, представляющую список значений Enum, в список T.
-        /// </summary>
-        /// <typeparam name="T">Тип перечисления.</typeparam>
-        /// <param name="platforms">Строка, содержащая значения перечисления.</param>
-        /// <returns>Список значений перечисления типа T.</returns>
-        private List<EnumPlatforms> DeserializePlatforms(string platforms)
-        {
-            var platformInts = JsonSerializer.Deserialize<List<int>>(platforms);
-            if (platformInts == null)
-                return new List<EnumPlatforms>();
-
-            return platformInts
-                .Where(i => Enum.IsDefined(typeof(EnumPlatforms), i))
-                .Select(i => (EnumPlatforms)i)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Десериализует JSON-строку, представляющую список путей скриншотов, в список строк.
-        /// </summary>
-        /// <param name="screenshotsString">JSON-строка с путями скриншотов.</param>
-        /// <returns>Список строк путей скриншотов.</returns>
-        private List<string> DeserializeScreenshots(string screenshotsString)
-        {
-            if (string.IsNullOrEmpty(screenshotsString))
-            {
-                return new List<string>();
-            }
-            var list = JsonSerializer.Deserialize<List<string>>(screenshotsString);
-            return list ?? new List<string>();
-        }
+        private readonly IGameDataSerializer gameSerializer = new GameDataSerializer();
 
         public void Add(T entity)
         {   
@@ -101,11 +36,11 @@ namespace DataAccessLayer
                     Name = game.Name,
                     Developer = game.Developer,
                     YearOfRelease = game.YearOfRelease,
-                    Platforms = SerializePlatforms(game.Platforms),
+                    Platforms = gameSerializer.SerializeList(game.Platforms),
                     Rating = game.Rating,
                     Description = game.Description,
                     Icon = game.Icon,
-                    Screenshots = SerializeScreenshots(game.Screenshots),
+                    Screenshots = gameSerializer.SerializeList(game.Screenshots),
                 };
                 connection.Execute(sqlQuery, parameters, transaction);
             }
@@ -149,11 +84,11 @@ namespace DataAccessLayer
                     Name = game.Name,
                     Developer = game.Developer,
                     YearOfRelease = game.YearOfRelease,
-                    Platforms = SerializePlatforms(game.Platforms),
+                    Platforms = gameSerializer.SerializeList(game.Platforms),
                     Rating = game.Rating,
                     Description = game.Description,
                     Icon = game.Icon,
-                    Screenshots = SerializeScreenshots(game.Screenshots),
+                    Screenshots = gameSerializer.SerializeList(game.Screenshots),
                 };
                 connection.Execute(sqlQuery, parameters, transaction);
             }
@@ -178,11 +113,11 @@ namespace DataAccessLayer
                 game.Name = gameDTO.Name;
                 game.Developer = gameDTO.Developer;
                 game.YearOfRelease = gameDTO.YearOfRelease;
-                game.Platforms = DeserializePlatforms(gameDTO.Platforms);
+                game.Platforms = gameSerializer.DeserializeToEnumOfPlatforms(gameDTO.Platforms);
                 game.Rating = gameDTO.Rating;
                 game.Description = gameDTO.Description;
                 game.Icon = gameDTO.Icon;
-                game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
+                game.Screenshots = gameSerializer.DeserializeToListOfStrings(gameDTO.Screenshots);
 
                 string reviewsQuery = @"SELECT * FROM Reviews WHERE GameId = @GameId";
                 List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }, transaction).AsList();
@@ -216,11 +151,11 @@ namespace DataAccessLayer
                     game.Name = gameDTO.Name;
                     game.Developer = gameDTO.Developer;
                     game.YearOfRelease = gameDTO.YearOfRelease;
-                    game.Platforms = DeserializePlatforms(gameDTO.Platforms);
+                    game.Platforms = gameSerializer.DeserializeToEnumOfPlatforms(gameDTO.Platforms);
                     game.Rating = gameDTO.Rating;
                     game.Description = gameDTO.Description;
                     game.Icon = gameDTO.Icon;
-                    game.Screenshots = DeserializeScreenshots(gameDTO.Screenshots);
+                    game.Screenshots = gameSerializer.DeserializeToListOfStrings(gameDTO.Screenshots);
                     
                     string reviewsQuery = @"SELECT * FROM Reviews WHERE GameId = @GameId";
                     List<Review> reviews = connection.Query<Review>(reviewsQuery, new { GameId = gameDTO.ID }, transaction).AsList();

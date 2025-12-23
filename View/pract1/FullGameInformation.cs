@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualBasic.Logging;
+﻿using BusinessLogic;
+using BusinessLogic.Services;
+using Microsoft.VisualBasic.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,26 +10,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using BusinessLogic;
 
 namespace View
 {
     public partial class FullGameInformation : Form
     {
+        private readonly IGameService gameService;
+        private readonly IReviewService reviewService;
+        private readonly int gameId;
         /// <summary>
         /// Инициализирует форму отображения информации об игре. Подписывает события для управления миниатюрами и кнопкой создания отзыва,
         /// а также загружает данные игры по указанному ID.
         /// </summary>
         /// <param name="gameId">ID игры для отображения.</param>
-        public FullGameInformation(int gameId)
+        public FullGameInformation(int gameId, IGameService gameService, IReviewService reviewService)
         {
             InitializeComponent();
+            this.gameService = gameService;
+            this.reviewService = reviewService;
+
             HSCB_Thumbnails.Scroll += (s, e) => UpdateThumbnailsPosition();
             BTN_MakeReview.Click += (s, e) => BTN_MakeReview_Click(gameId);
             LoadGameData(gameId);
         }
 
-        private List<Image> allScreenshots = new List<Image>(); // Icon + Screenshots
+        private List<Image> allScreenshots = new List<Image>();
         private List<PictureBox> thumbnailBoxes = new List<PictureBox>();
         private int thumbnailWidth = 80;  // ширина миниатюры
         private int thumbnailHeight = 60;
@@ -67,7 +74,7 @@ namespace View
         /// <param name="gameId">ID игры для загрузки.</param>
         private void LoadGameData(int gameId)
         {
-            var game = Logic.GetGameById(gameId);
+            var game = gameService.GetGameById(gameId);
 
             if (game == null)
             {
@@ -195,13 +202,10 @@ namespace View
         /// <param name="gameId">ID игры, к которой добавляется отзыв.</param>
         private void BTN_MakeReview_Click(int gameId)
         {
-            var game = Logic.GetGameById(gameId);
-
-            var addReviewForm = new AddReview(game.ID);
-
+            var addReviewForm = new AddReview(gameId, reviewService);
             if (addReviewForm.ShowDialog() == DialogResult.OK)
             {
-                LoadGameData(game.ID);
+                LoadGameData(gameId);
             }
         }
     }
