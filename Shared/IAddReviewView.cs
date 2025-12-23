@@ -10,10 +10,13 @@ namespace Shared
 {
     public interface IAddReviewView
     {
-        event Action<Review> ReviewSubmitted;
-        DialogResult ShowDialog();
-        void SetFormState(bool isValid, string errorMessage);
-        void ResetForm();
-        void ShowMessage(string message, string title);
+        string Username { get; }
+        string RatingText { get; }
+        string ReviewText { get; }
+
+        event EventHandler AddReviewRequested;
+
+        void ShowMessage(string text, string caption);
+        void CloseView();
     }
 }

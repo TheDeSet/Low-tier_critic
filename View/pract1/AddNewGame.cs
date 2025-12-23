@@ -1,5 +1,6 @@
 ﻿using BusinessLogic;
 using BusinessLogic.Services;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,16 +14,18 @@ using System.Windows.Forms;
 
 namespace View
 {
-    public partial class AddNewGame : Form
+    public partial class AddNewGame : Form, IAddGameView
     {
-        private readonly IGameService gameService;
         private string currentIcon;
         private List<string> screenshots = new List<string>();
-        public AddNewGame(IGameService gameService)
+        public AddNewGame()
         {
 
             InitializeComponent();
-            this.gameService = gameService;
+
+            BTN_Add.Click += (s, e) => AddGameRequested?.Invoke(this, EventArgs.Empty);
+            BTN_Reset.Click += (s, e) => ResetRequested?.Invoke(this, EventArgs.Empty);
+
             // Заполнение CHKLTB_Platform
             foreach (Entities.EnumPlatforms platform in Enum.GetValues(typeof(Entities.EnumPlatforms)))
             {
@@ -30,10 +33,28 @@ namespace View
             }
             BTN_AddIconImage.Click += BTN_AddIconImage_Click;
             BTN_AddScreenshotImage.Click += BTN_AddScreenshotImage_Click;
-            BTN_Reset.Click += BTN_Reset_Click;
-            BTN_Add.Click += BTN_Add_Click;
+            //BTN_Reset.Click += BTN_Reset_Click;
+            //BTN_Add.Click += BTN_Add_Click;
             PIC_Game.Image = View.Properties.Resources.No_image; // заглушка
         }
+        public string GameName => TB_GameName.Text;
+        public string Developer => TB_Developer.Text;
+        public string Description => RTB_Description.Text;
+        public string YearOfRelease => TB_YearOfRelease.Text;
+        public string Icon => TB_IconPath.Text;
+
+        public List<int> SelectedPlatforms =>
+            CHKLTB_Platform.CheckedIndices.Cast<int>().ToList();
+
+        public List<string> Screenshots { get; } = new();
+
+        public event EventHandler? AddGameRequested;
+        public event EventHandler? ResetRequested;
+
+        public void ShowMessage(string text, string caption) =>
+            MessageBox.Show(text, caption);
+
+        public void CloseView() => Close();
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки выбора иконки игры. Открывает диалог OpenFileDialog для выбора файла иконки, 
@@ -135,7 +156,7 @@ namespace View
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void BTN_Add_Click(object sender, EventArgs e)
+        /*private void BTN_Add_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TB_GameName.Text))
             {
@@ -178,7 +199,7 @@ namespace View
             MessageBox.Show($"Игра \"{newGame.Name}\" успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);         
             ResetForm();
             this.Close();
-        }
+        }*/
 
         /// <summary>
         /// Сбрасывает все поля формы в начальное состояние: очищает текстовые поля, сбрасывает выбранные платформы и изображения.

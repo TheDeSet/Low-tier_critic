@@ -9,6 +9,7 @@ namespace Shared
 {
     public interface IReviewView
     {
-        void SetReview(Review review);
+        void ShowReviews(List<Review> reviews);
+        void ShowMessage(string text, string caption);
     }
 }

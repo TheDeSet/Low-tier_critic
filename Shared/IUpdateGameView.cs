@@ -10,10 +10,16 @@ namespace Shared
 {
     public interface IUpdateGameView
     {
-        event Action<Game> GameUpdated;
-        DialogResult ShowDialog();
-        void LoadGame(Game game);
-        void SetFormState(bool isValid, string errorMessage);
-        void ShowMessage(string message, string title);
+        int GameId { get; }
+        string GameName { get; }
+        string Developer { get; }
+        string YearOfRelease { get; }
+        string Description { get; }
+
+        event EventHandler UpdateRequested;
+
+        void FillForm(dynamic game);
+        void ShowMessage(string text, string caption);
+        void CloseView();
     }
 }

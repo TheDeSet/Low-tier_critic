@@ -1,6 +1,8 @@
 ﻿using BusinessLogic;
 using BusinessLogic.Services;
+using Entities;
 using Microsoft.VisualBasic.Logging;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,25 +15,23 @@ using System.Windows.Forms;
 
 namespace View
 {
-    public partial class FullGameInformation : Form
+    public partial class FullGameInformation : Form, IGameDetailsView
     {
-        private readonly IGameService gameService;
-        private readonly IReviewService reviewService;
-        private readonly int gameId;
+
         /// <summary>
         /// Инициализирует форму отображения информации об игре. Подписывает события для управления миниатюрами и кнопкой создания отзыва,
         /// а также загружает данные игры по указанному ID.
         /// </summary>
         /// <param name="gameId">ID игры для отображения.</param>
-        public FullGameInformation(int gameId, IGameService gameService, IReviewService reviewService)
+        public FullGameInformation()
         {
             InitializeComponent();
-            this.gameService = gameService;
-            this.reviewService = reviewService;
+
+            BTN_MakeReview.Click += (s, e) => AddReviewRequested?.Invoke(this, EventArgs.Empty);
 
             HSCB_Thumbnails.Scroll += (s, e) => UpdateThumbnailsPosition();
-            BTN_MakeReview.Click += (s, e) => BTN_MakeReview_Click(gameId);
-            LoadGameData(gameId);
+            //BTN_MakeReview.Click += (s, e) => BTN_MakeReview_Click(gameId);
+            //LoadGameData(gameId);
         }
 
         private List<Image> allScreenshots = new List<Image>();
@@ -39,6 +39,18 @@ namespace View
         private int thumbnailWidth = 80;  // ширина миниатюры
         private int thumbnailHeight = 60;
         private int spacing = 5;
+        public event EventHandler? AddReviewRequested;
+
+        public void ShowGame(Game game)
+        {
+            LB_GameName.Text = game.Name;
+            LB_Developer.Text = game.Developer;
+            LB_YearOfRelease.Text = game.YearOfRelease?.ToString() ?? "—";
+            LB_Rating.Text = game.Rating?.ToString("F1") ?? "—";
+            RTB_Description.Text = game.Description;
+        }
+        public void ShowMessage(string text, string caption) =>
+            MessageBox.Show(text, caption);
 
         /// <summary>
         /// Обновляет позицию миниатюр скриншотов при скролле горизонтального ползунка.
@@ -72,7 +84,7 @@ namespace View
         /// платформы, отзывы и миниатюры скриншотов. Обрабатывает случаи отсутствия данных.
         /// </summary>
         /// <param name="gameId">ID игры для загрузки.</param>
-        private void LoadGameData(int gameId)
+        /*private void LoadGameData(int gameId)
         {
             var game = gameService.GetGameById(gameId);
 
@@ -193,20 +205,20 @@ namespace View
                 HSCB_Thumbnails.Visible = false;
                 HSCB_Thumbnails.Enabled = false;
             }
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки "Создать отзыв". Открывает форму AddReview для добавления отзыва к текущей игре и обновляет данные 
         /// после успешного добавления.
         /// </summary>
         /// <param name="gameId">ID игры, к которой добавляется отзыв.</param>
-        private void BTN_MakeReview_Click(int gameId)
+        /*private void BTN_MakeReview_Click(int gameId)
         {
             var addReviewForm = new AddReview(gameId, reviewService);
             if (addReviewForm.ShowDialog() == DialogResult.OK)
             {
                 LoadGameData(gameId);
             }
-        }
+        }*/
     }
 }

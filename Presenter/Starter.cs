@@ -1,7 +1,6 @@
-﻿using BusinessLogic.Services;
-using DataAccessLayer;
+﻿using BusinessLogic;
+using BusinessLogic.Services;
 using Ninject;
-using Presenter;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -26,9 +25,9 @@ namespace Presenter
         /// Создает главное меню с всеми зависимостями
         /// </summary>
         /// <returns>Экземпляр главного меню</returns>
-        public static IMainMenuView CreateMainMenu()
+        public static IFormMainMenu CreateMainMenu()
         {
-            var view = new View.MainMenu();
+            var view = new pract1.MainMenu();
             var gameService = kernel.Get<IGameService>();
             var reviewService = kernel.Get<IReviewService>();
             var presenter = new MainMenuPresenter(view, gameService, reviewService);

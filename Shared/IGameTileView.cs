@@ -9,9 +9,12 @@ namespace Shared
 {
     public interface IGameTileView
     {
-        event Action<int> GameSelected;
-        event Action<int> GameOpened;
-        void SetGame(Game game);
-        void SetSelected(bool selected);
+        event EventHandler<int> GameSelected;
+        event EventHandler AddGameRequested;
+        event EventHandler UpdateGameRequested;
+        event EventHandler DeleteGameRequested;
+        void ShowGames(List<Game> games);
+        int SelectedGameId { get; }
+        void ShowMessage(string text, string caption);
     }
 }

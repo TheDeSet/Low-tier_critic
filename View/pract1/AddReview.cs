@@ -1,5 +1,6 @@
 ﻿using BusinessLogic;
 using BusinessLogic.Services;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,29 +13,41 @@ using System.Windows.Forms;
 
 namespace View
 {
-    public partial class AddReview : Form
+    public partial class AddReview : Form, IAddReviewView
     {
-        private readonly IReviewService reviewService;
-        private readonly int IdGame;
+
         /// <summary>
         /// Инициализирует форму добавления отзыва для конкретной игры.
         /// </summary>
         /// <param name="gameId">ID игры, к которой будет добавлен отзыв.</param>
-        public AddReview(int gameId, IReviewService reviewService)
+        public AddReview()
         {
             InitializeComponent();
-            IdGame = gameId;
-            this.reviewService = reviewService;
-            BTN_Add.Click += BtnAdd_Click;
-            BTN_Cancel.Click += (s, e) => this.Close();
+
+            BTN_Add.Click += (s, e) => AddReviewRequested?.Invoke(this, EventArgs.Empty);
+            BTN_Cancel.Click += (s, e) => Close();
+
+            /*BTN_Add.Click += BtnAdd_Click;
+            BTN_Cancel.Click += (s, e) => this.Close();*/
         }
+
+        public string Username => TB_Username.Text;
+        public string RatingText => TB_Rating.Text;
+        public string ReviewText => RTB_ReviewText.Text;
+
+        public event EventHandler? AddReviewRequested;
+
+        public void ShowMessage(string text, string caption) =>
+            MessageBox.Show(text, caption);
+
+        public void CloseView() => Close();
 
         /// <summary>
         /// Обрабатывает событие нажатия кнопки добавления отзыва. Проверяет валидность данных, создает объект отзыва и сохраняет его через логику.
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void BtnAdd_Click(object sender, EventArgs e)
+        /*private void BtnAdd_Click(object sender, EventArgs e)
         {
 
             if (!float.TryParse(TB_Rating.Text, out float rating) || rating < 1.0f || rating > 5.0f)
@@ -67,7 +80,7 @@ namespace View
             {
                 MessageBox.Show("Не удалось добавить отзыв.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
+        }*/
 
     }
 }

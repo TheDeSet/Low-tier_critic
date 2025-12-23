@@ -1,5 +1,4 @@
 ﻿using BusinessLogic.Services;
-using Entities;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -13,39 +12,27 @@ namespace Presenter
     {
         private readonly IGameDetailsView view;
         private readonly IGameService gameService;
-        private readonly IReviewService reviewService;
         private readonly int gameId;
-        public GameDetailsPresenter(IGameDetailsView view, int gameId, IGameService gameService, IReviewService reviewService)
+        public GameDetailsPresenter(IGameDetailsView view, int gameId, IGameService gameService)
         {
             this.view = view;
             this.gameId = gameId;
             this.gameService = gameService;
-            this.reviewService = reviewService;
 
-            view.MakeReviewRequested += OnMakeReview;
+            view.AddReviewRequested += (s, e) => view.ShowMessage("Открытие формы отзыва", "Info");
 
             LoadGameData();
         }
         private void LoadGameData()
         {
             var game = gameService.GetGameById(gameId);
-            if (game != null)
+            if (game == null)
             {
-                view.LoadGameData(game);
+                view.ShowMessage("Игра не найдена", "Ошибка");
+                return;
             }
-            else
-            {
-                view.ShowMessage("Игра не найдена.", "Ошибка");
-            }
-        }
-        private void OnMakeReview()
-        {
-            var addReviewView = Starter.CreateAddReviewView(gameId);
-            if (addReviewView.ShowDialog() == DialogResult.OK)
-            {
-                LoadGameData();
-                view.GameUpdated?.Invoke(gameId);
-            }
+
+            view.ShowGame(game);
         }
     }
 }

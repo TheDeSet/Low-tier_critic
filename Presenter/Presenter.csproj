@@ -11,6 +11,7 @@
     <ProjectReference Include="..\DAL\DataAccessLayer.csproj" />
     <ProjectReference Include="..\Lab 3.1\Entities.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\View\pract1\View.csproj" />
   </ItemGroup>
 
 </Project>

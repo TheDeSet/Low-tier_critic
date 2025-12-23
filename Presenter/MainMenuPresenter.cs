@@ -1,14 +1,11 @@
 ﻿using Shared;
-using BusinessLogic;
 using BusinessLogic.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLogic.Services;
-using Entities;
-using Shared;
+using System.Windows.Forms;
 
 namespace Presenter
 {
@@ -54,7 +51,7 @@ namespace Presenter
                 LoadGames();
             }
         }
-        private void OnDeleteGame(object? sender, EventArgs e)
+        private void OnDeleteGame()
         {
             var gameId = view.GetSelectedGameId();
             if (gameId == null)
@@ -75,44 +72,6 @@ namespace Presenter
                 "Подтверждение удаления",
                 onConfirm: () => {
                     bool success = gameService.DeleteGame(gameId.Value);
-                    if (success)
-                    {
-                        view.ShowMessage("Успешно удалено", "Успех");
-                        LoadGames();
-                    }
-                    else
-                    {
-                        view.ShowMessage("Ошибка при удалении игры.", "Ошибка");
-                    }
-                },
-                onCancel: () => {
-                    view.ShowMessage("Элемент остаётся без изменений", "Отмена");
-                }
-            );
-        }
-        private void OnDeleteGame()
-        {
-            ShowGameView selectedTile = null;
-            foreach (Control ctrl in ((MainMenu)view).FLP_GamesView.Controls)
-            {
-                if (ctrl is ShowGameView tile && tile.IsSelected)
-                {
-                    selectedTile = tile;
-                    break;
-                }
-            }
-
-            if (selectedTile == null)
-            {
-                view.ShowMessage("Сначала выберите игру для удаления.", "Внимание");
-                return;
-            }
-
-            view.ShowConfirmation(
-                $"Вы уверены, что хотите удалить игру \"{selectedTile.GameData.Name}\"?",
-                "Подтверждение удаления",
-                onConfirm: () => {
-                    bool success = gameService.DeleteGame(selectedTile.GameData.ID);
                     if (success)
                     {
                         view.ShowMessage("Успешно удалено", "Успех");

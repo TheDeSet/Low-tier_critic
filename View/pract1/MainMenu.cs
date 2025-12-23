@@ -1,18 +1,17 @@
-﻿using BusinessLogic;
-using BusinessLogic.Services;
-using Ninject;
+﻿using Entities;
+using Shared;
 using View;
 
 namespace pract1
 {
-    public partial class MainMenu : Form
+    public partial class MainMenu : Form, IFormMainMenu
     {
-        private readonly IGameService gameService;
-        private readonly IReviewService reviewService;
         public MainMenu()
         {
             InitializeComponent();
-            var result = MessageBox.Show(
+            CMB_Filter.SelectedIndex = 0;
+            CMB_Sort.SelectedIndex = 0;
+            /*var result = MessageBox.Show(
                 "Да - Использовать EntityFrameWork \n\n Нет - Использовать Dapper",
                 "Выбор режима",
                 MessageBoxButtons.YesNo
@@ -45,14 +44,65 @@ namespace pract1
                 PNL_Menu.Visible = !PNL_Menu.Visible;
             };
             BTN_Delete.Click += OnDeleteButtonClick;
-            BTN_Add.Click += BTN_Add_Click;
+            BTN_Add.Click += BTN_Add_Click;*/
         }
+        public event Action AddGameRequested;
+        public event Action DeleteGameRequested;
+        public event Action UpdateGameRequested;
+        public event Action SearchRequested;
+        public event Action SortRequested;
+        public event Action ResetRequested;
 
+        public int? GetSelectedGameId()
+        {
+            foreach (Control ctrl in FLP_GamesView?.Controls)
+            {
+                if (ctrl is ShowGameView tile && tile.IsSelected)
+                {
+                    return tile.GameData?.ID;
+                }
+            }
+            return null;
+        }
+        public void LoadGames(List<Game> games)
+        {
+            FLP_GamesView?.Controls.Clear();
+
+            foreach (var game in games)
+            {
+                var tile = new ShowGameView();
+                tile.SetGame(game);
+                tile.GameSelected += (s, gameId) => OnGameSelected(gameId);
+                tile.GameOpened += (s, gameId) => GameOpened?.Invoke(gameId);
+                FLP_GamesView.Controls.Add(tile);
+            }
+        }
+        public void ShowMessage(string message, string title)
+        {
+            MessageBox.Show(message, title);
+        }
+        public void ShowConfirmation(string message, string title, Action onConfirm, Action onCancel)
+        {
+            if (MessageBox.Show(message, title, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                onConfirm?.Invoke();
+            else
+                onCancel?.Invoke();
+        }
+        private void OnGameSelected(int gameId)
+        {
+            foreach (Control ctrl in FLP_GamesView.Controls)
+            {
+                if (ctrl is ShowGameView tile)
+                {
+                    tile.SetSelected(tile.GameData?.ID == gameId);
+                }
+            }
+        }
         /// <summary>
         /// Загружает список игр с учетом текущих параметров фильтрации, поиска и сортировки из интерфейса. Очищает контейнер плиток и 
         /// добавляет новую плитку для каждой игры из отфильтрованного списка. Обрабатывает событие обновления данных игры.
         /// </summary>
-        private void LoadGames()
+        /*private void LoadGames()
         {
             if (FLP_GamesView == null) return;
             FLP_GamesView.Controls.Clear();
@@ -79,7 +129,7 @@ namespace pract1
                 tile.GameUpdated += (s, e) => LoadGames();
                 FLP_GamesView.Controls.Add(tile);
             }
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие удаления игры. Находит выделенную плитку, запрашивает подтверждение удаления, удаляет игру через логику 
@@ -87,7 +137,7 @@ namespace pract1
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void OnDeleteButtonClick(object sender, EventArgs e)
+        /*private void OnDeleteButtonClick(object sender, EventArgs e)
         {
             ShowGameView? selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
@@ -131,14 +181,14 @@ namespace pract1
             {
                 MessageBox.Show("Элемент остаётся без изменений", "Отмена", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие добавления новой игры. Открывает форму AddNewGame для ввода данных новой игры и обновляет список игр после закрытия формы.
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void BTN_Add_Click(object? sender, EventArgs e)
+        /*private void BTN_Add_Click(object? sender, EventArgs e)
         {
             AddNewGame addNewGame = new(gameService);
             if (addNewGame.ShowDialog() == DialogResult.OK)
@@ -146,7 +196,7 @@ namespace pract1
                 LoadGames();
             }
             LoadGames();
-        }
+        }*/
 
         /// <summary>
         /// Обрабатывает событие обновления данных игры. Находит выделенную плитку, открывает форму UpdateGame для редактирования данных игры 
@@ -154,7 +204,7 @@ namespace pract1
         /// </summary>
         /// <param name="sender">Источник события.</param>
         /// <param name="e">Аргументы события.</param>
-        private void BTN_Update_Click(object sender, EventArgs e)
+        /*private void BTN_Update_Click(object sender, EventArgs e)
         {
             ShowGameView selectedTile = null;
             foreach (Control ctrl in FLP_GamesView.Controls)
@@ -177,6 +227,6 @@ namespace pract1
             {
                 LoadGames();
             }
-        }
+        }*/
     }
 }

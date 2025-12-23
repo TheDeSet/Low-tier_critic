@@ -10,10 +10,18 @@ namespace Shared
 {
     public interface IAddGameView
     {
-        event Action<Game> GameAdded;
-        DialogResult ShowDialog();
-        void SetFormState(bool isValid, string errorMessage);
-        void ResetForm();
-        void ShowMessage(string message, string title);
+        string GameName { get; }
+        string Developer { get; }
+        string Description { get; }
+        string YearOfRelease { get; }
+        string Icon { get; }
+        List<int> SelectedPlatforms { get; }
+        List<string> Screenshots { get; }
+
+        event EventHandler AddGameRequested;
+        event EventHandler ResetRequested;
+
+        void ShowMessage(string text, string caption);
+        void CloseView();
     }
 }

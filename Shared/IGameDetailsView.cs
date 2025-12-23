@@ -9,9 +9,8 @@ namespace Shared
 {
     public interface IGameDetailsView
     {
-        event Action<int> MakeReviewRequested;
-        event Action<int> GameUpdated;
-        void LoadGameData(Game game);
-        void ShowMessage(string message, string title);
+        event EventHandler AddReviewRequested;
+        void ShowGame(Game game);
+        void ShowMessage(string text, string caption);
     }
 }

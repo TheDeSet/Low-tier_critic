@@ -13,68 +13,45 @@ namespace Presenter
     {
         private readonly IAddGameView view;
         private readonly IGameService gameService;
-        private Game newGame;
 
         public AddGamePresenter(IAddGameView view, IGameService gameService)
         {
             this.view = view;
             this.gameService = gameService;
 
-            view.GameAdded += OnGameAdded;
+            view.AddGameRequested += OnAddGame;
+            view.ResetRequested += (s, e) => view.CloseView();
         }
-        private void OnGameAdded(Game game)
+        private void OnAddGame(object? sender, EventArgs e)
         {
-            try
+            if (string.IsNullOrWhiteSpace(view.GameName))
             {
-                gameService.AddGame(game);
-                view.ShowMessage($"Игра \"{game.Name}\" успешно добавлена!", "Успех");
-            }
-            catch (Exception ex)
-            {
-                view.ShowMessage($"Ошибка при добавлении игры: {ex.Message}", "Ошибка");
+                view.ShowMessage("Введите название игры", "Ошибка");
                 return;
             }
 
-            view.ResetForm();
-        }
-
-        public void AddGame(string name, string developer, string description,
-            string icon, List<string> screenshots, List<EnumPlatforms> platforms,
-            int? yearOfRelease, float? rating)
-        {
-            if (string.IsNullOrWhiteSpace(name))
+            if (!int.TryParse(view.YearOfRelease, out int year) || year < 1925)
             {
-                view.SetFormState(false, "Введите название игры.");
+                view.ShowMessage("Некорректный год выпуска", "Ошибка");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(developer))
+            var game = new Game
             {
-                view.SetFormState(false, "Введите разработчика.");
-                return;
-            }
-
-            if (yearOfRelease.HasValue && yearOfRelease < 1925)
-            {
-                view.SetFormState(false, "Дата релиза не может быть меньше чем 1925.");
-                return;
-            }
-
-            newGame = new Game
-            {
-                Name = name,
-                Developer = developer,
-                Description = description,
-                Icon = icon,
-                Screenshots = screenshots,
-                Platforms = platforms,
-                YearOfRelease = yearOfRelease,
-                Rating = rating
+                Name = view.GameName.Trim(),
+                Developer = view.Developer.Trim(),
+                Description = view.Description.Trim(),
+                YearOfRelease = year,
+                Icon = view.Icon,
+                Screenshots = view.Screenshots,
+                Platforms = view.SelectedPlatforms
+                    .Select(i => (EnumPlatforms)i)
+                    .ToList()
             };
 
-            view.SetFormState(true, string.Empty);
-            view.GameAdded?.Invoke(newGame);
+            gameService.AddGame(game);
+            view.ShowMessage("Игра добавлена", "Успех");
+            view.CloseView();
         }
-
     }
 }

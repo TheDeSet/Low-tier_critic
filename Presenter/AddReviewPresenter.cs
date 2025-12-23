@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BusinessLogic.Services;
+using Entities;
+using Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLogic.Services;
-using Entities;
-using Shared;
+using View;
 
 namespace Presenter
 {
@@ -14,57 +15,45 @@ namespace Presenter
         private readonly IAddReviewView view;
         private readonly IReviewService reviewService;
         private readonly int gameId;
-        private Review newReview;
         public AddReviewPresenter(IAddReviewView view, int gameId, IReviewService reviewService)
         {
             this.view = view;
             this.gameId = gameId;
             this.reviewService = reviewService;
 
-            view.ReviewSubmitted += OnReviewSubmitted;
+            view.AddReviewRequested += OnAddReview;
         }
-        private void OnReviewSubmitted(Review review)
+        private void OnAddReview(object? sender, EventArgs e)
         {
-            try
+            if (!float.TryParse(view.RatingText, out float rating) ||
+                rating < 1 || rating > 5)
             {
-                bool success = reviewService.AddReviewToGame(gameId, review);
-                if (success)
-                {
-                    view.ShowMessage("Отзыв успешно добавлен!", "Успех");
-                }
-                else
-                {
-                    view.ShowMessage("Не удалось добавить отзыв.", "Ошибка");
-                }
-            }
-            catch (Exception ex)
-            {
-                view.ShowMessage($"Ошибка при добавлении отзыва: {ex.Message}", "Ошибка");
-            }
-        }
-        public void SubmitReview(string username, float rating, string reviewText)
-        {
-            if (rating < 1.0f || rating > 5.0f)
-            {
-                view.SetFormState(false, "Пожалуйста, введите рейтинг от 1.0 до 5.0 (например: 4.5)");
+                view.ShowMessage("Рейтинг 1–5", "Ошибка");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(reviewText))
+            if (string.IsNullOrWhiteSpace(view.ReviewText))
             {
-                view.SetFormState(false, "Введите ваши впечатления.");
+                view.ShowMessage("Введите текст отзыва", "Ошибка");
                 return;
             }
 
-            newReview = new Review
+            var review = new Review
             {
-                Username = string.IsNullOrWhiteSpace(username) ? "Аноним" : username,
+                Username = view.Username,
                 Rating = rating,
-                ReviewText = reviewText
+                ReviewText = view.ReviewText
             };
 
-            view.SetFormState(true, string.Empty);
-            view.ReviewSubmitted?.Invoke(newReview);
+            if (reviewService.AddReviewToGame(gameId, review))
+            {
+                view.ShowMessage("Отзыв добавлен", "Успех");
+                view.CloseView();
+            }
+            else
+            {
+                view.ShowMessage("Ошибка добавления", "Ошибка");
+            }
         }
     }
 }
