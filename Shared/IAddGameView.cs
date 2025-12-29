@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Shared
 {
-    public interface IAddGameView
+    public interface IAddGameView : IFormGeneral
     {
         string GameName { get; }
         string Developer { get; }
@@ -21,6 +21,7 @@ namespace Shared
         event EventHandler AddGameRequested;
         event EventHandler ResetRequested;
 
+        GameDTO GetGameFromInput();
         void ShowMessage(string text, string caption);
         void CloseView();
     }

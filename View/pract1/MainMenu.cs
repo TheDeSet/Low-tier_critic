@@ -6,6 +6,17 @@ namespace pract1
 {
     public partial class MainMenu : Form, IFormMainMenu
     {
+        public event EventHandler ShowGamesRequested;
+        public event EventHandler AddGameRequested;
+        public event EventHandler DeleteGameRequested;
+        public event EventHandler UpdateGameRequested;
+        public event EventHandler SearchRequested;
+        public event EventHandler SortRequested;
+        public event EventHandler ResetRequested;
+        public event EventHandler ExitRequested;
+
+        //public 
+
         public MainMenu()
         {
             InitializeComponent();
@@ -46,12 +57,6 @@ namespace pract1
             BTN_Delete.Click += OnDeleteButtonClick;
             BTN_Add.Click += BTN_Add_Click;*/
         }
-        public event Action AddGameRequested;
-        public event Action DeleteGameRequested;
-        public event Action UpdateGameRequested;
-        public event Action SearchRequested;
-        public event Action SortRequested;
-        public event Action ResetRequested;
 
         public int? GetSelectedGameId()
         {

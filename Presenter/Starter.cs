@@ -38,14 +38,14 @@ namespace Presenter
         /// </summary>
         /// <param name="gameId">ID игры для отображения</param>
         /// <returns>Экземпляр представления игры</returns>
-        public static IGameDetailsView CreateGameDetailsView(int gameId)
-        {
-            var view = new View.FullGameInformation(gameId);
-            var gameService = kernel.Get<IGameService>();
-            var reviewService = kernel.Get<IReviewService>();
-            var presenter = new GameDetailsPresenter(view, gameId, gameService, reviewService);
-            return view;
-        }
+        //public static IGameDetailsView CreateGameDetailsView(int gameId)
+        //{
+        //    var view = new View.FullGameInformation(gameId);
+        //    var gameService = kernel.Get<IGameService>();
+        //    var reviewService = kernel.Get<IReviewService>();
+        //    var presenter = new GameDetailsPresenter(view, gameId, gameService, reviewService);
+        //    return view;
+        //}
         /// <summary>
         /// Создает форму добавления новой игры
         /// </summary>

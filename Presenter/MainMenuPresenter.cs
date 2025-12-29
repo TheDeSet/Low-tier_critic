@@ -43,7 +43,7 @@ namespace Presenter
             );
             view.LoadGames(filteredGames);
         }
-        private void OnAddGame()
+        private void OnAddGame(object sender, EventArgs e)
         {
             var addGameView = Starter.CreateAddGameView();
             if (addGameView.ShowDialog() == DialogResult.OK)
@@ -51,7 +51,7 @@ namespace Presenter
                 LoadGames();
             }
         }
-        private void OnDeleteGame()
+        private void OnDeleteGame(object sender, EventArgs e)
         {
             var gameId = view.GetSelectedGameId();
             if (gameId == null)
@@ -87,7 +87,7 @@ namespace Presenter
                 }
             );
         }
-        private void OnUpdateGame()
+        private void OnUpdateGame(object sender, EventArgs e)
         {
             var gameId = view.GetSelectedGameId();
             if (gameId == null)
@@ -102,15 +102,15 @@ namespace Presenter
                 LoadGames();
             }
         }
-        private void OnSearch()
+        private void OnSearch(object sender, EventArgs e)
         {
             LoadGames();
         }
-        private void OnSort()
+        private void OnSort(object sender, EventArgs e)
         {
             LoadGames();
         }
-        private void OnReset()
+        private void OnReset(object sender, EventArgs e)
         {
             searchField = "искать по всему";
             searchText = "";

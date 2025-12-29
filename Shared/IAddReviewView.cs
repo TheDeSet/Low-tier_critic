@@ -8,14 +8,16 @@ using System.Windows.Forms;
 
 namespace Shared
 {
-    public interface IAddReviewView
+    public interface IAddReviewView : IFormGeneral
     {
         string Username { get; }
         string RatingText { get; }
         string ReviewText { get; }
 
         event EventHandler AddReviewRequested;
+        event EventHandler ResetRequested;
 
+        ReviewDTO GetReviewFromInput();
         void ShowMessage(string text, string caption);
         void CloseView();
     }

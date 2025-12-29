@@ -13,7 +13,7 @@ namespace Shared
         event EventHandler AddGameRequested;
         event EventHandler UpdateGameRequested;
         event EventHandler DeleteGameRequested;
-        void ShowGames(List<Game> games);
+        void ShowGames(List<GameDTO> games);
         int SelectedGameId { get; }
         void ShowMessage(string text, string caption);
     }

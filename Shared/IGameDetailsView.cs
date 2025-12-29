@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public interface IGameDetailsView
+    public interface IGameDetailsView : IFormGeneral
     {
         event EventHandler AddReviewRequested;
-        void ShowGame(Game game);
-        void ShowMessage(string text, string caption);
+        void ShowGame(GameDTO game);
+        void ShowReviews(List<ReviewDTO> reviews);
     }
 }

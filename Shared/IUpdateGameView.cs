@@ -1,4 +1,4 @@
-﻿using Entities;
+﻿    using Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +17,10 @@ namespace Shared
         string Description { get; }
 
         event EventHandler UpdateRequested;
+        event EventHandler ResetRequested;
 
-        void FillForm(dynamic game);
+        GameDTO GetGameFromInput();
+        void SetGameForForm(GameDTO game);
         void ShowMessage(string text, string caption);
         void CloseView();
     }

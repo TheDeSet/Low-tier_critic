@@ -10,5 +10,7 @@ namespace Shared
     {
         void ShowMessage(string message);
         void ShowError(string message);
+        void ShowView();
+        void ClsoeView();
     }
 }

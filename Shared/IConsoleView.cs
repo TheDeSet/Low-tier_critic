@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    internal interface IConsoleView
+    internal interface IConsoleView : IFormGeneral
     {
         event EventHandler ShowGamesRequested;
         event EventHandler ExitRequested;
